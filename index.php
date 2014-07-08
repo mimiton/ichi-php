@@ -8,4 +8,4 @@ $app = new App();
 $app->run();
 
 //Cookie::forever('abc', 'hahdiwjdjwoaks');
-//echo Cookie::get('abc');
+echo Cookie::get('abc');
