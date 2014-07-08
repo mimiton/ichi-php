@@ -75,8 +75,8 @@ class Cookie {
 		// UA信息
 		$UA    = $_SERVER['HTTP_USER_AGENT'];
 		
-		// 使用 值+UA信息 加密作为密匙
-		$token = md5( $val . $UA );
+		// 使用 值+UA信息+密匙 加密作为密匙
+		$token = md5( $val . $UA . ICHI_SALT );
 		
 		// 密匙cookie名称
 		$tokenKey = $key . self::TOKEN_SUFFIX;
@@ -103,7 +103,7 @@ class Cookie {
 		$token = $_COOKIE[ $key . self::TOKEN_SUFFIX ];
 		
 		// 计算期望密匙
-		$md5 = md5( $val . $UA  );
+		$md5 = md5( $val . $UA . ICHI_SALT );
 		
 		// 返回 期望密匙 与 实际密匙 的匹配结果
 		return strcmp( $md5, $token ) == 0;

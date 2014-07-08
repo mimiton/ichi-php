@@ -1,5 +1,8 @@
 <?php
 
+// 默认加密密匙
+defined('ICHI_SALT') or define('ICHI_SALT', '18dh237ddjw9');
+
 // 当前工作目录
 defined('ICHI_CWD') or define('ICHI_CWD', getcwd());
 
