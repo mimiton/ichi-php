@@ -1,7 +1,12 @@
 <?php
+/**
+ * @desc   Cookie操作类
+ * @author xiaozheen
+ *
+ */
 class Cookie {
 	
-	// cookie的密匙cookie名称后缀
+	// 密匙cookie的名称后缀
 	const TOKEN_SUFFIX = '_i_c';
 
 	/**
@@ -67,28 +72,40 @@ class Cookie {
 	 */
 	static function set( $key, $val, $expire = NULL, $path = NULL, $domain = NULL, $secure = NULL ) {
 		
+		// UA信息
 		$UA    = $_SERVER['HTTP_USER_AGENT'];
+		
+		// 使用 值+UA信息 加密作为密匙
 		$token = md5( $val . $UA );
 		
+		// 密匙cookie名称
 		$tokenKey = $key . self::TOKEN_SUFFIX;
 		
 		
+		// 设置
 		setcookie( $key, $val, $expire, $path, $domain, $secure, $secure );
 		setcookie( $tokenKey, $token, $expire, $path, $domain, $secure, $secure );
 	}
 	
 	/**
 	 * @desc  检查指定cookie是否安全
+	 *        使用 cookie值+UA信息 加密作为验证密匙
+	 *        防止攻击者窃取/伪造cookie
 	 */
 	private static function isSafe( $key ) {
 		
+		// UA信息
 		$UA    = $_SERVER['HTTP_USER_AGENT'];
+		
+		// 获取cookie值
 		$val   = $_COOKIE[ $key ];
+		// 获取密匙cookie的值
 		$token = $_COOKIE[ $key . self::TOKEN_SUFFIX ];
 		
-		
+		// 计算期望密匙
 		$md5 = md5( $val . $UA  );
 		
+		// 返回 期望密匙 与 实际密匙 的匹配结果
 		return strcmp( $md5, $token ) == 0;
 		
 	}
