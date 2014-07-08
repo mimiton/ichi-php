@@ -1,4 +1,7 @@
 <?php
+
+namespace app\controllers\a\one;
+
 class bar {
 	
 	function _numeric( $req, $res, $n ) {
