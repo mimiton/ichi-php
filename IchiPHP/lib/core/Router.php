@@ -97,17 +97,31 @@ class Router {
 		
 		if( !isset($controller) ) return false;
 		
+		$req = new Request();
+		$res = new Response();
+		
+		// 添加带有请求方法后缀的方法名
+		$fnNameWithMethod = $fnName . '_' . $req->method;
+		
+		// 调用->functionName_GET
+		//   ->functionName_POST
+		//   ->functionName_PUT
+		//   ->functionName_DELETE
+		// 这样的方法，不存在则正常调用不待后缀的普通方法
+		if( method_exists( $controller, $fnNameWithMethod ) )
+			$controller->$fnNameWithMethod( $req, $res, $args );
+		
 		// 方法存在
-		if( method_exists( $controller, $fnName ) )
-			$controller->$fnName( new Request(), new Response(), $args );
+		else if( method_exists( $controller, $fnName ) )
+			$controller->$fnName( $req, $res, $args );
 		
 		// 数字类型方法
 		else if( is_numeric($fnName) && method_exists( $controller, '_numeric' ) )
-			$controller->_numeric( new Request(), new Response(), $fnName, $args );
+			$controller->_numeric( $req, $res, $fnName, $args );
 		
 		// 默认方法
 		else if( method_exists( $controller, '_default' ) )
-			$controller->_default( new Request(), new Response(), $args );
+			$controller->_default( $req, $res, $args );
 		else
 			return false;
 		
