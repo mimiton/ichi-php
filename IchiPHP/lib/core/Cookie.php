@@ -89,7 +89,7 @@ class Cookie {
 	
 	/**
 	 * @desc  检查指定cookie是否安全
-	 *        使用 cookie值+UA信息 加密作为验证密匙
+	 *        使用 cookie值+UA信息+密匙 加密作为验证密匙
 	 *        防止攻击者窃取/伪造cookie
 	 */
 	private static function isSafe( $key ) {
