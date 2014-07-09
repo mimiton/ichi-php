@@ -16,15 +16,15 @@ class Model {
 		// 文件路径
 		$filePath = ICHI_MODELS_PATH . $modelPath . '.php';
 		
-		// 类的命名空间
-		$nameSpace = ICHI_MODELS_NS . str_replace( '/', '\\', $modelPath );
-		
 		// 载入文件
 		require_once $filePath;
 		
 		// 默认不创建实例
 		if( !$autoInstantiate )
 			return;
+
+		// 类的命名空间
+		$nameSpace = ICHI_MODELS_NS . str_replace( '/', '\\', $modelPath );
 		
 		// 用命名空间创建实例
 		if( class_exists($nameSpace) )
