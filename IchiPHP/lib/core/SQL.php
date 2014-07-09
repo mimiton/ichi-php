@@ -6,7 +6,7 @@ class SQL {
 		$instance = new SQL();
 		
 		$instance->method    = 'SELECT';
-		$instance->table     = $table;
+		$instance->tableName = $table;
 		$instance->conditionLogicNeed = false;
 		
 		return $instance;
@@ -101,13 +101,98 @@ class SQL {
 		}
 	}
 	
+	/**
+	 * @desc  转换字段列表数组为字符串
+	 * @param unknown $fields
+	 * @return string|unknown
+	 */
+	static function fields2string( $fields ) {
+		
+		if( is_array($fields) )
+			return implode( ',', $fields );
+		else if( is_string($fields) )
+			return $fields;
+		
+	}
+	
 	
 	/**
 	 * @desc   获取sql语句
 	 * @return string
 	 */
 	function get() {
-		return $this->method. ' ' .$this->fields. ' WHERE ' .$this->condition. ' ORDER BY ' .$this->orderSql;
+		
+		if( $this->method == 'SELECT' )
+			$sql = $this->getSelect();
+		else if( $this->method == 'UPDATE' )
+			$sql = $this->getUpdate();
+		else if( $this->method == 'INSERT' )
+			$sql = $this->getInsert();
+
+		if( $this->condition )
+			$sql .= ' WHERE '.$this->condition;
+		if( $this->orderSql )
+			$sql .= ' ORDER BY '.$this->orderSql;
+		if( $this->groupSql )
+			$sql .= ' GROUP BY `'.$this->groupSql.'`';
+		if( $this->limitSql )
+			$sql .= ' LIMIT '.$this->limitSql;
+	
+		return $sql;
+	}
+	
+	/**
+	 * @desc   获取SELECT查询语句
+	 * @return string
+	 */
+	private function getSelect() {
+		
+		$sql =	'SELECT '.$this->fields.' FROM `'.$this->tableName.'`';
+		
+		return $sql;
+		
+	}
+	
+	/**
+	 * @desc   获取UPDATE查询语句
+	 * @return string
+	 */
+	private function getUpdate() {
+		
+		$sql = 'UPDATE `'.$this->tableName.'` SET ';
+		
+		$valsArr = array();
+		foreach ( $this->valuesToUpdate as $k => $v ) {
+			
+			// 处理自增/减/乘/除
+			if( preg_match( '/^([\+\-\*\/])=(\d+)$/i', $v, $matches ) )
+				$valsArr[] = '`'.$k.'`=`'.$k.'`'.$matches[1].$matches[2];
+			else
+				$valsArr[] = '`'.$k.'`='.SQL::wrapValue($v);
+			
+		}
+		$sql .= implode( ',', $valsArr );
+		
+		return $sql;
+		
+	}
+	
+	/**
+	 * @desc   获取INSERT查询语句
+	 */
+	private function getInsert() {
+		$sql = 'INSERT INTO `'.$this->tableName.'` ';
+		
+		foreach ( $this->valuesToInsert as $k => $v ) {
+			$fields .= '`'.$k.'`,';
+			$values .= SQL::wrapValue($v).',';
+		}
+		$fields = substr($fields,0,-1);
+		$values = substr($values,0,-1);
+		
+		$sql .= '('.$fields.') VALUES ('.$values.')';
+		
+		return $sql;
 	}
 	
 	/**
@@ -118,23 +203,64 @@ class SQL {
 	 */
 	function select( $fields ) {
 		
-		if( $this->method !== 'SELECT' ) {
-			throw new Exception('SQL WARN: Trying to use SELECT in ' .$this->method. ' operation');
+		if( $this->method !== 'SELECT' )
 			return $this;
-		}
 		
-		if( is_array($fields) ) {
-			
-			$str = implode( ',', $fields );
-		}
-		else if( is_string($fields) )
-			$str = $fields;
+		// 转换字段列表为逗号连接的字符串
+		$str = SQL::fields2string( $fields );
 		
-		if( $this->fields )
-			$this->fields .= ',';
+		$this->fields .= ($this->fields? ',' : '') . $str;
 		
-		$this->fields .= $str;
+		return $this;
 		
+	}
+	
+	/**
+	 * @desc  设置sql的操作为UPDATE，并添加字段
+	 * @param unknown $fields
+	 * @return SQL
+	 */
+	function update( $field, $value = NULL ) {
+		
+		$this->method = 'UPDATE';
+		
+		if( is_string($field) )
+			$field = array( $field => $value );
+		
+		if( is_array($field) )
+			foreach ( $field as $k => $v )
+				$this->valuesToUpdate[ $k ] = $v;
+		
+		return $this;
+		
+	}
+	
+	/**
+	 * @desc 设置操作为INSERT
+	 */
+	function insert( $field = NULL, $value = NULL ) {
+		$this->method = 'INSERT';
+		
+		if( $field )
+			$this->addValue( $field, $value );
+		
+		return $this;
+	}
+	
+	/**
+	 * @desc  添加待插入的键值对
+	 * @param unknown $field
+	 * @param unknown $value
+	 * @return SQL
+	 */
+	function addValue( $field, $value = NULL ) {
+		
+		if( is_string($field) )
+			$field = array( $field => $value );
+		
+		if( is_array($field) )
+			foreach ( $field as $k => $v )
+				$this->valuesToInsert[ $k ] = $v;		
 		
 		return $this;
 		
@@ -235,6 +361,33 @@ class SQL {
 		$this->orderSql .= '`'.$field.'` '.$order;
 		
 		return $this;
+	}
+	
+	/**
+	 * @desc  设置 GROUP BY 语句
+	 * @param unknown $field
+	 * @return SQL
+	 */
+	function groupBy( $field ) {
+		$this->groupSql = $field;
+		return $this;
+	}
+	
+	/**
+	 * @desc 设置LIMIT参数
+	 * @param unknown $s
+	 * @param unknown $n
+	 * @return SQL
+	 */
+	function limit( $s, $n = NULL ) {
+		
+		$this->limitSql = $s;
+		
+		if( !empty($n) )
+			$this->limitSql .= ',' . $n;
+		
+		return $this;
+		
 	}
 	
 }
