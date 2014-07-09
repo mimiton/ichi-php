@@ -2,11 +2,19 @@
 
 namespace app\controllers\b;
 
+use app\models\user\rank;
 class foo {
 
 	function _default( $req, $res, $args ) {
 		$res->write('this is default function');
 		print_r($args);
+		
+		// debug
+		\Model::load('/user/rank');
+		$userRankModel = new rank();
+		
+		echo '<br>';
+		print_r( $userRankModel->getRank(1) );
 	}
 	
 	function _numeric( $req, $res, $n, $args ) {
