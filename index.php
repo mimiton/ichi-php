@@ -9,9 +9,9 @@ require 'IchiPHP/lib/lib.php';
 Driver::config(array(
 	'defaultDrivers' => array(
 		'mysql' => array(
-			'path' => '/database/mysql',
-			'host' => 'localhost',
-			'user' => 'root',
+			'path'    => '/database/mysql',
+			'host'    => 'localhost',
+			'user'    => 'root',
 			'password'=> '123456',
 			'database'=> 'db_ichiso_main'
 		)
@@ -25,24 +25,4 @@ $app->run();
 
 //debugging
 //Cookie::forever('abc', 'hahdiwjdjwoaks');
-echo Cookie::get('abc');
-
-/*echo SQL::parseArr2ConditionString(array(
-	array( '','name','=','123' ),
-	array( 'or',array(
-		array('','nickname','=','456'),
-		array('and','name','=','789')
-	))
-));*/
-echo '<br>';
-echo SQL::table('abc')
-->select('a,b,c')
-->select(array('se','ba','aer'))
-->where('name', 'between', 'caonima', 'kalia')
-->orWhere('[["","nickname","=","abc"],["and","abc",">","123df"]]')
-->orWhere(function ($q){
-	$q->where('a','=','b')->where('c','=','d')->orWhere('a','between','c','d')->orWhere('kkk','not in',array('kqoq','fjru'));
-})
-->where('kajima','in','1,4,5,6,8')
-->orWhere('fuckyou','not in',array('kajima','caonima'))
-->orderBy('kax','desc')->get();
+echo '<h3>cookie:abc='.Cookie::get('abc').'</h3>';
