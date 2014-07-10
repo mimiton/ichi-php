@@ -8,6 +8,7 @@ class SQL {
 		$instance->method    = 'SELECT';
 		$instance->tableName = $table;
 		$instance->conditionLogicNeed = false;
+		$instance->joinLogicNeed = false;
 		
 		return $instance;
 		
@@ -134,10 +135,13 @@ class SQL {
 		if( $this->orderSql )
 			$sql .= ' ORDER BY '.$this->orderSql;
 		if( $this->groupSql )
-			$sql .= ' GROUP BY `'.$this->groupSql.'`';
+			$sql .= ' GROUP BY '.$this->groupSql;
 		if( $this->limitSql )
 			$sql .= ' LIMIT '.$this->limitSql;
 	
+		if( $this->joinSql )
+			$sql .= ' '.$this->joinSql;
+		
 		return $sql;
 	}
 	
@@ -270,15 +274,19 @@ class SQL {
 	 * @desc  添加逻辑符，并操作逻辑符开关
 	 * @param unknown $logic
 	 */
-	private function whereLogic( $logic ) {
+	private function addLogic( $logic, $mode = 'WHERE' ) {
 		
-		// 逻辑符开关处于需要状态
-		if( $this->conditionLogicNeed ) {
+		// 条件逻辑符开关处于需要状态
+		if( $mode == 'WHERE' && $this->conditionLogicNeed ) {
 			
 			$this->condition .= ' '.$logic.' ';
 			
 			// 标记逻辑符开关为不需要
 			$this->conditionLogicNeed = false;
+		}
+		else if( $mode == 'JOIN' && $this->joinLogicNeed ) {
+			$this->joinSql .= ' '.$logic.' ';
+			$this->joinLogicNeed = false;
 		}
 	}
 	
@@ -292,7 +300,7 @@ class SQL {
 	function where( $field, $operator, $value, $value_2 = NULL ) {
 		
 		// 添加AND逻辑符
-		$this->whereLogic( 'AND' );
+		$this->addLogic( 'AND' );
 		
 		// 添加条件
 		$this->condition .= SQL::arr2ConditionString(array( '', $field, $operator, $value, $value_2 ));
@@ -314,7 +322,7 @@ class SQL {
 	function orWhere( $field, $operator = NULL, $value = NULL, $value_2 = NULL ) {
 		
 		// 添加OR逻辑符
-		$this->whereLogic( 'OR' );
+		$this->addLogic( 'OR' );
 
 		
 		// 数组形式子条件
@@ -388,6 +396,56 @@ class SQL {
 		
 		return $this;
 		
+	}
+	
+	/**
+	 * @desc  添加join语句
+	 * @param unknown $table
+	 * @param unknown $field_1
+	 * @param string $operator
+	 * @param string $field_2
+	 * @param string $mode
+	 * @return SQL
+	 */
+	function join( $table, $field_1, $operator = NULL, $field_2 = NULL, $mode = '' ) {
+		
+		$this->joinSql .= $mode .' JOIN `'. $table .'` ON ';
+		
+		if( isset($field_1) && isset($operator) && isset($field_2) ) {
+			$this->on( $field_1, $operator, $field_2 );
+		}
+		// 其余参数为空，$field_1作function使用，在其内部添加多个on连接字段
+		else
+			$field_1( $this );
+		
+		return $this;
+	}
+	
+	/**
+	 * @desc  添加join的on连接字段
+	 * @param unknown $field_1
+	 * @param unknown $operator
+	 * @param unknown $field_2
+	 * @param string $logic
+	 * @return SQL
+	 */
+	function on( $field_1, $operator, $field_2, $logic = 'AND' ) {
+		$this->addLogic( $logic, 'JOIN' );
+		$this->joinSql .= $field_1 .' '. $operator .' '. $field_2 .' ';
+		$this->joinLogicNeed = true;
+		return $this;
+	}
+	
+	/**
+	 * @desc  `或` 逻辑的join连接语句
+	 * @param unknown $field_1
+	 * @param unknown $operator
+	 * @param unknown $field_2
+	 * @return SQL
+	 */
+	function orOn( $field_1, $operator, $field_2 ) {
+		$this->on( $field_1, $operator, $field_2, 'OR' );
+		return $this;
 	}
 	
 }
