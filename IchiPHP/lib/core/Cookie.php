@@ -8,7 +8,17 @@ class Cookie {
 	
 	// 密匙cookie的名称后缀
 	const TOKEN_SUFFIX = '_i_c';
-
+	
+	/**
+	 * @desc  小时cookie
+	 * @param unknown $key
+	 * @param unknown $val
+	 * @param number $hourNum
+	 */
+	static function hour( $key, $val, $hourNum = 1 ) {
+		self::set( $key, $val, time() + $hourNum*60*60 );
+	}
+	
 	/**
 	 * @desc  天数cookie
 	 * @param unknown $key
