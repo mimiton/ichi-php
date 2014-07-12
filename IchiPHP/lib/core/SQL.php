@@ -88,18 +88,23 @@ class SQL {
 	 * @return unknown|string
 	 */
 	static function wrapValue( $strOrArr ) {
-		if( is_string($strOrArr) )
-			if( is_numeric($strOrArr) )
-				return $strOrArr;
-			else
-				return '"' .$strOrArr. '"';
+		
+		// 数字
+		if( is_numeric($strOrArr) )
+			return $strOrArr;
+		// 字符串
+		else if( is_string($strOrArr) )
+			return '"' .$strOrArr. '"';
+		// 数组
 		else if( is_array($strOrArr) ) {
 			
 			foreach ( $strOrArr as $k => $v )
 				$strOrArr[$k] = self::wrapValue($v);
 			
 			return $strOrArr;
+			
 		}
+		
 	}
 	
 	/**
