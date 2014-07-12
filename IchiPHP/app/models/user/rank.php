@@ -8,7 +8,9 @@ class rank {
 		
 		$mysql = \Driver::useDefault('mysql');
 		
-		return $mysql->getData('SELECT * FROM tb_usr');
+		$sql = \SQL::table('tb_usr')->select('*')->where('id', '>=', 1)->get();
+		
+		return $mysql->getData($sql);
 		
 	}
 	
