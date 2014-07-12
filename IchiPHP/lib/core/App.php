@@ -5,21 +5,21 @@
 class App {
 	
 	// 路由器
-	private $router;
+	private static $router;
 	
 	/**
 	 * @desc  启动App
 	 */
-	public function run() {
+	static function run() {
 		
-		$this->route();
+		self::route();
 		
 	}
 	
 	/**
 	 * @desc  进行路由
 	 */
-	private function route() {
+	private static function route() {
 
 		$reqUri = strtok( $_SERVER['REQUEST_URI'], '?' );
 		
