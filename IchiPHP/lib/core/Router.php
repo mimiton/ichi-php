@@ -43,6 +43,12 @@ class Router {
 		// 控制器命名空间
 		$nameSpace = ICHI_CONTROLLERS_NS;
 		
+		// 访问的是根目录uri，路由至根目录特殊控制器
+		if( $uri == '/' ) {
+			self::to('/_default/_root');
+			return true;
+		}
+		
 		// 用 `/` 拆解uri
 		$matches = explode( '/', $uri );
 		
@@ -51,9 +57,14 @@ class Router {
 		// 在其对应的控制器目录每一层里寻找控制器
 		foreach ( $matches as $i => $name ) {
 			
-			$path .= $name;
+			// 当前层名字为空，跳过
+			if( empty($name) ) continue;
 			
-			$nameSpace .= $name;
+			// 进入下一层目录
+			$path .= '/' . $name;
+				
+			// 进入下一层命名空间
+			$nameSpace .= '\\' . $name;
 			
 			// 控制器已经找到
 			// 剩下部分的uri做调用控制器的参数使用
@@ -73,12 +84,6 @@ class Router {
 				else
 					$controller = new $name();
 			}
-			
-			// 进入下一层目录
-			$path .= '/';
-			
-			// 进入下一层命名空间
-			$nameSpace .= '\\';
 			
 		}
 		
@@ -133,8 +138,10 @@ class Router {
 	 */
 	private static function handleException() {
 		
-		if( !self::to( '/_default/_404', false ) )
-			echo 'no controller & function to handle this request';
+		if( !self::to( '/_default/_4a04', false ) ) {
+			header('HTTP/1.1 404 Not Found');
+			exit();
+		}
 		
 	}
 }
