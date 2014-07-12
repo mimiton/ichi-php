@@ -33,6 +33,7 @@ defined('ICHI_DRIVERS_NS')       or define('ICHI_DRIVERS_NS',       '\extend\dri
 // 包含各模块
 require 'core/SQL.php';
 require 'core/Cookie.php';
+require 'core/Session.php';
 require 'core/Request.php';
 require 'core/Response.php';
 require 'core/Router.php';

@@ -18,10 +18,8 @@ Driver::config(array(
 	)
 ));
 
-// 实例化一个App类
-$app = new App();
 // 启动
-$app->run();
+App::run();
 
 //debugging
 //Cookie::forever('abc', 'hahdiwjdjwoaks');
