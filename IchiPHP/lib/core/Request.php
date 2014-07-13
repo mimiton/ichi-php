@@ -5,21 +5,27 @@
  */
 class Request {
 	
-	function __construct() {
-		
-		// 请求方法
-		$this->method = strtoupper($_SERVER['REQUEST_METHOD']);
-		
-		// 请求参数
-		$this->params = $_REQUEST;
-
+	/**
+	 * @desc   获取请求方法
+	 * @return string
+	 */
+	static function getMethod() {
+		return strtoupper($_SERVER['REQUEST_METHOD']);
+	}
+	
+	/**
+	 * @desc   请求参数
+	 * @return unknown
+	 */
+	static function getParams() {
+		return $_REQUEST;
 	}
 	
 	/**
 	 * @desc   获取浏览器信息
 	 * @return multitype:unknown string
 	 */
-	function getBrowserInfo() {
+	static function getBrowserInfo() {
 		
 		$UA = $_SERVER['HTTP_USER_AGENT'];
 		
@@ -38,9 +44,9 @@ class Request {
 	 * @param  number $version
 	 * @return boolean
 	 */
-	function fromOldIE( $versionLimit = 8 ) {
+	static function fromOldIE( $versionLimit = 8 ) {
 		
-		$browserInfo = $this->getBrowserInfo();
+		$browserInfo = self::getBrowserInfo();
 		
 		if( $browserInfo['name'] == 'msie' ) {
 
@@ -60,7 +66,7 @@ class Request {
 	 * @desc   判断来自移动设备
 	 * @return boolean
 	 */
-	function fromMobileDevice() {
+	static function fromMobileDevice() {
 		
 		$UA = $_SERVER['HTTP_USER_AGENT'];
 		
