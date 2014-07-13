@@ -6,6 +6,19 @@
  */
 class Router {
 	
+	static $appName;
+	
+	/**
+	 * @desc  配置参数
+	 * @param unknown $props
+	 */
+	static function config( $props ) {
+		
+		// 当前路由的应用名
+		self::$appName = $props['appName'];
+		
+	}
+	
 	/**
 	 * @desc  调用路由方法，并捕捉异常
 	 * @param unknown $uri             URI
@@ -37,15 +50,16 @@ class Router {
 	 * @return boolean
 	 */
 	private static function routeToController( $uri ) {
+		
 		// 控制器目录
-		$path = ICHI_CONTROLLERS_PATH;
+		$path = ICHI_CONTROLLERS_PATH . '/' . self::$appName;
 		
 		// 控制器命名空间
-		$nameSpace = ICHI_CONTROLLERS_NS;
+		$nameSpace = ICHI_CONTROLLERS_NS . '\\' . self::$appName;
 		
 		// 访问的是根目录uri，路由至根目录特殊控制器
 		if( $uri == '/' ) {
-			self::to('/_default/_root');
+			self::to( self::$appName, '/_default/_root' );
 			return true;
 		}
 		
@@ -61,17 +75,18 @@ class Router {
 			if( empty($name) ) continue;
 			
 			// 进入下一层目录
-			$path .= '/' . $name;
-				
+			$path      .= '/'  . $name;
 			// 进入下一层命名空间
 			$nameSpace .= '\\' . $name;
 			
 			// 控制器已经找到
-			// 剩下部分的uri做调用控制器的参数使用
 			if( isset($controller) ) {
 
+				// 剩下部分的uri做调用控制器的参数使用
+				$args = array_slice( $matches, $i );
+				
 				// 调用控制器方法
-				return Router::callFn( $controller, $name, array_slice($matches, $i) );
+				return Router::callControllerFn( $controller, $name, $args );
 				
 			}
 			
@@ -79,8 +94,12 @@ class Router {
 			else if( file_exists( $path . '.php' ) ) {
 				// 包含文件并创建控制器
 				require_once $path . '.php';
+				
+				// 尝试用命名空间创建实例
 				if( class_exists($nameSpace) )
 					$controller = new $nameSpace();
+				// 直接使用当前层的目录名创建
+				// （兼容未写命名空间的控制器php文件，不建议不写命名空间）
 				else
 					$controller = new $name();
 			}
@@ -89,7 +108,7 @@ class Router {
 		
 		// uri没有下一层了
 		// 调用控制器的_default方法
-		return Router::callFn( $controller, '_default' );
+		return Router::callControllerFn( $controller, '_default' );
 		
 	}
 	
@@ -98,7 +117,7 @@ class Router {
 	 * @param unknown $controller
 	 * @param unknown $fnName
 	 */
-	private static function callFn( $controller, $fnName, $args = NULL ) {
+	private static function callControllerFn( $controller, $fnName, $args = NULL ) {
 		
 		if( !isset($controller) ) return false;
 		
@@ -108,11 +127,11 @@ class Router {
 		// 添加带有请求方法后缀的方法名
 		$fnNameWithMethod = $fnName . '_' . $req->method;
 		
-		// 调用->functionName_GET
-		//   ->functionName_POST
-		//   ->functionName_PUT
-		//   ->functionName_DELETE
-		// 这样的方法，不存在则正常调用不待后缀的普通方法
+		// 调用->functionName_GET()
+		//    ->functionName_POST()
+		//    ->functionName_PUT()
+		//    ->functionName_DELETE()
+		// 这样的方法，不存在则正常调用不带后缀的普通方法->functionName()
 		if( method_exists( $controller, $fnNameWithMethod ) )
 			$controller->$fnNameWithMethod( $req, $res, $args );
 		
@@ -138,7 +157,7 @@ class Router {
 	 */
 	private static function handleException() {
 		
-		if( !self::to( '/_default/_4a04', false ) ) {
+		if( !self::to( '/_default/_404', false ) ) {
 			header('HTTP/1.1 404 Not Found');
 			exit();
 		}
