@@ -1,6 +1,6 @@
 <?php
 class shop {
-	function _default( $req, $res ) {
-		$res->write('this is shop controller');
+	function _default() {
+		Response::write('this is shop controller');
 	}
 }
