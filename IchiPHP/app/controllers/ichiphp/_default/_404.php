@@ -1,6 +1,6 @@
 <?php
 
-namespace app\controllers\_default;
+namespace app\controllers\ichiphp\_default;
 
 class _404 {
 	function _default() {

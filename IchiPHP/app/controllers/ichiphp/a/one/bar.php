@@ -1,6 +1,6 @@
 <?php
 
-namespace app\controllers\a\one;
+namespace app\controllers\ichiphp\a\one;
 
 class bar {
 	
