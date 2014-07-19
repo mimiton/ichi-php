@@ -27,19 +27,23 @@ class Driver {
 	 */
 	static function useDefault( $alias ) {
 		
+		// 驱动实例存在，直接返回
 		if( isset( self::$defaultDrivers[ $alias ] ) )
 			return self::$defaultDrivers[ $alias ];
 		
+		// 驱动配置信息存在，使用它进行初始化
 		if( isset( self::$defaultDriverCfgs[ $alias ] ) ) {
 			
+			// 驱动配置信息
 			$cfg = self::$defaultDriverCfgs[ $alias ];
-			self::load( $cfg['path'] );
 			
-			$nameSpace = ICHI_DRIVERS_NS . str_replace( '/', '\\', $cfg['path'] );
+			// 载入驱动，获取创建好的实例
+			self::$defaultDrivers[ $alias ] = self::load( $cfg['path'], true );
 			
-			self::$defaultDrivers[ $alias ] = new $nameSpace();
+			// 初始化驱动实例
 			self::$defaultDrivers[ $alias ]->init( $cfg );
 			
+			// 返回实例
 			return self::$defaultDrivers[ $alias ];
 			
 		}
@@ -51,17 +55,24 @@ class Driver {
 	 */
 	static function load( $driverPath, $autoInstatiate = false ) {
 		
+		// 驱动文件路径
 		$filePath  = ICHI_DRIVERS_PATH . $driverPath . '.php';
 		
+		// 载入文件
 		require_once $filePath;
 
+		// 非自动创建模式，返回
 		if( !$autoInstatiate )
 			return;
 			
+		// 驱动命名空间
 		$nameSpace = ICHI_DRIVERS_NS . str_replace( '/', '\\', $driverPath );
 		
+		// 尝试使用命名空间创建实例
 		if( class_exists($nameSpace) )
 			$driver = new $nameSpace();
+		// 降级，使用文件名创建实例
+		// 从文filePath中获取文件名：\foo\bar\abc => new abc();
 		else {
 			$matches = explode( '\\', $driverPath );
 			$className = $matches[ count($matches)-1 ];
