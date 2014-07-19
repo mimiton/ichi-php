@@ -6,7 +6,10 @@
  */
 class Router {
 	
-	static $appName;
+	// 路由的目标应用
+	private static $appName;
+	// 特殊路由规则数组
+	private static $specialRoute;
 	
 	/**
 	 * @desc  配置参数
@@ -15,7 +18,9 @@ class Router {
 	static function config( $props ) {
 		
 		// 当前路由的应用名
-		self::$appName = $props['appName'];
+		self::$appName      = $props['appName'];
+		// 特殊路由规则
+		self::$specialRoute = $props['specialRoute'];
 		
 	}
 	
@@ -25,6 +30,18 @@ class Router {
 	 *        boolean $handleException 是否处理异常
 	 */
 	static function to( $uri, $handleException = true ) {
+
+		// 优先匹配ALL方法里的路由规则，处理所有请求方法
+		$specialUri = self::matchSpecialRoute( 'ALL', $uri );
+		
+		// 次先匹配具体请求方法里的路由规则
+		if( !$specialUri )
+			$specialUri = self::matchSpecialRoute( Request::getMethod(), $uri );
+		
+		// 有匹配到的特殊路由
+		if( $specialUri )
+			// 使用新路由
+			$uri = $specialUri;
 		
 		try {
 			
@@ -42,6 +59,36 @@ class Router {
 		}
 		
 		return true;
+	}
+	
+	/**
+	 * @desc  匹配特殊路由，成功则返回路由映射的控制器对应uri
+	 * @param unknown $uri
+	 * @return mixed|boolean
+	 */
+	private function matchSpecialRoute( $reqMethod, $uri ) {
+		
+		// 根据请求method获取对应的特殊路由规则
+		$specialRoute = self::$specialRoute[ $reqMethod ];
+		if( !is_array( $specialRoute ) )
+			return false;
+		
+		// 遍历规则
+		foreach ( $specialRoute as $pattern => $newUri ) {
+			
+			$pattern = str_replace( '/', '\/', $pattern );
+			
+			if( preg_match( '/^' .$pattern. '$/', $uri, $matches ) ) {
+				
+				for( $i = 1; $matches[$i]; $i++ ) 
+					$newUri = str_replace( '$'.$i, $matches[$i], $newUri );
+				
+				return $newUri;
+			}
+			
+		}
+		
+		return false;
 	}
 	
 	/**
