@@ -70,21 +70,22 @@ class Router {
 		
 		// 根据请求method获取对应的特殊路由规则
 		$specialRoute = self::$specialRoute[ $reqMethod ];
+		
 		if( !is_array( $specialRoute ) )
 			return false;
 		
 		// 遍历规则
-		foreach ( $specialRoute as $pattern => $newUri ) {
+		foreach ( $specialRoute as $pattern => $newPattern ) {
 			
 			$pattern = str_replace( '/', '\/', $pattern );
 			
-			if( preg_match( '/^' .$pattern. '$/', $uri, $matches ) ) {
-				
-				for( $i = 1; $matches[$i]; $i++ ) 
-					$newUri = str_replace( '$'.$i, $matches[$i], $newUri );
-				
+			$newUri = preg_replace( '/^' .$pattern. '$/', $newPattern, $uri );
+			
+			// 例如：
+			//      `/foo(\d+)/(\w+) => /foo/$1/$2` 的规则
+			//      可把 `/foo1234/bar` 路由至 `/foo/1234/bar`
+			if( strcmp( $newUri, $uri ) != 0 )
 				return $newUri;
-			}
 			
 		}
 		
@@ -201,7 +202,7 @@ class Router {
 	 */
 	private static function handleException() {
 		
-		if( !self::to( '/_default/_404', false ) ) {
+		if( !self::routeToController( '/_default/_404' ) ) {
 			header('HTTP/1.1 404 Not Found');
 			exit();
 		}
