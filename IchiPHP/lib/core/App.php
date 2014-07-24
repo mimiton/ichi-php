@@ -76,15 +76,24 @@ class App {
 }
 
 /**
- * @desc   域名配置链式操作工具
+ * @desc   链式操作工具，配置域名->应用的映射，以及特殊路由规则
  * @author xiaozheen
  */
 class DomainConfigSetter {
 	
+	/**
+	 * @desc  构造方法，传入要配置的目标域名
+	 * @param unknown $domain
+	 */
 	function __construct( $domain ) {
 		$this->domain = $domain;
 	}
 	
+	/**
+	 * @desc   映射到指定应用
+	 * @param  unknown $appName
+	 * @return DomainConfigSetter
+	 */
 	function toApp( $appName ) {
 		
 		$domain = $this->domain;
@@ -94,6 +103,13 @@ class DomainConfigSetter {
 		return $this;
 	}
 	
+	/**
+	 * @desc  添加特殊路由
+	 * @param unknown $method
+	 * @param unknown $uriRegex
+	 * @param unknown $reRouteUri
+	 * @return DomainConfigSetter
+	 */
 	private function specialRoute( $method, $uriRegex, $reRouteUri ) {
 
 		$domain = $this->domain;
@@ -104,15 +120,58 @@ class DomainConfigSetter {
 		
 	}
 	
+	/**
+	 * @desc  添加处理所有（ALL）请求类型的特殊路由
+	 * @param unknown $uriRegex
+	 * @param unknown $reRouteUri
+	 */
 	function all( $uriRegex, $reRouteUri ) {
 		
 		return $this->specialRoute( App::REQ_METHOD_ALL, $uriRegex, $reRouteUri );
 		
 	}
 	
+	/**
+	 * @desc  添加处理（GET）请求类型的特殊路由
+	 * @param unknown $uriRegex
+	 * @param unknown $reRouteUri
+	 */
 	function get( $uriRegex, $reRouteUri ) {
 		
 		return $this->specialRoute( App::REQ_METHOD_GET, $uriRegex, $reRouteUri );
+	
+	}
+
+	/**
+	 * @desc  添加处理（POST）请求类型的特殊路由
+	 * @param unknown $uriRegex
+	 * @param unknown $reRouteUri
+	 */
+	function post( $uriRegex, $reRouteUri ) {
+	
+		return $this->specialRoute( App::REQ_METHOD_POST, $uriRegex, $reRouteUri );
+	
+	}
+
+	/**
+	 * @desc  添加处理（PUT）请求类型的特殊路由
+	 * @param unknown $uriRegex
+	 * @param unknown $reRouteUri
+	 */
+	function put( $uriRegex, $reRouteUri ) {
+	
+		return $this->specialRoute( App::REQ_METHOD_PUT, $uriRegex, $reRouteUri );
+	
+	}
+
+	/**
+	 * @desc  添加处理（DELETE）请求类型的特殊路由
+	 * @param unknown $uriRegex
+	 * @param unknown $reRouteUri
+	 */
+	function delete( $uriRegex, $reRouteUri ) {
+	
+		return $this->specialRoute( App::REQ_METHOD_DELETE, $uriRegex, $reRouteUri );
 	
 	}
 	
