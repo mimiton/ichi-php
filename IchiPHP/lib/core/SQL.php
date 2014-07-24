@@ -1,6 +1,16 @@
 <?php
+/**
+ * @desc   SQL查询语句构造器
+ * @author xiaozheen
+ *
+ */
 class SQL {
 	
+	/**
+	 * @desc  设定要操作的表
+	 * @param unknown $table
+	 * @return SQL
+	 */
 	static function table( $table ) {
 		
 		$instance = new SQL();
@@ -278,6 +288,7 @@ class SQL {
 	/**
 	 * @desc  添加逻辑符，并操作逻辑符开关
 	 * @param unknown $logic
+	 *        String  $mode { 'WHERE'|'JOIN' }
 	 */
 	private function addLogic( $logic, $mode = 'WHERE' ) {
 		
