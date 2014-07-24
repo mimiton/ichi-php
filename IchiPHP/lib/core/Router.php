@@ -45,15 +45,15 @@ class Router {
 		
 		try {
 			
-			// 返回false，则抛出异常
+			// 未成功调用控制器，抛出404异常
 			if( !self::routeToController( $uri ) )
-				throw new Exception();
+				throw new IchiStatusException( 404, 'Controller for uri:`'.$uri.'` in App:`'.self::$appName.'` not found!' );
 			
 		} catch( Exception $e ) {
 			
 			// 处理异常
 			if( $handleException )
-				self::handleException();
+				self::handleException( $e );
 			
 			return false;
 		}
@@ -198,16 +198,48 @@ class Router {
 	}
 	
 	/**
-	 * @desc  处理异常，路由至404页面对应控制器
+	 * @desc  处理异常，路由错误页面对应控制器
 	 */
-	private static function handleException() {
+	private static function handleException( $e ) {
 		
-		if( !self::routeToController( '/_default/_404' ) ) {
-			header('HTTP/1.1 404 Not Found');
-			exit();
-		}
+		// 清除已经输出的内容
+		ob_clean();
+		
+		// 获取错误码
+		$status = $e->status;
+		
+		// 无可用错误码时作404处理
+		if( !is_numeric($status) )
+			$status = 404;
+		
+		// 路由至指定错误码对应的控制器
+		self::routeToController( '/_default/_' . $status );
+		
+		// 输出响应头状态码
+		header( 'HTTP/1.1 ' . $status );
+		
+		// 输出错误信息到header
+		if( !empty($e->msg) )
+			header( 'Ichi-Msg:' . $e->msg );
+		
+		exit();
 		
 	}
 }
 
+/**
+ * @desc   带有状态码的异常
+ * @author xiaozheen
+ *
+ */
+class IchiStatusException extends Exception {
+	
+	var $status,$msg;
+	
+	function __construct( $status, $msg ) {
+		$this->status = $status;
+		$this->msg    = $msg;
+	}
+	
+}
 ?>
