@@ -15,6 +15,7 @@ class Driver {
 	 */
 	static function config( $props ) {
 	
+		// 储存预设驱动配置信息，以alias别名为索引
 		foreach ( $props['defaultDrivers'] as $alias => $cfg ) {
 			self::$defaultDriverCfgs[ $alias ] = $cfg;
 		}
@@ -57,6 +58,10 @@ class Driver {
 		
 		// 驱动文件路径
 		$filePath  = ICHI_DRIVERS_PATH . $driverPath . '.php';
+		
+		// 文件不存在，抛出500异常，由Router类抓取
+		if( !file_exists($filePath) )
+			throw new IchiStatusException( 500, 'File of driver:`'.$driverPath.'` not found!' );
 		
 		// 载入文件
 		require_once $filePath;
