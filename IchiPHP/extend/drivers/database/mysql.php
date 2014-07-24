@@ -29,6 +29,8 @@ class mysql implements \IDriver {
 			mysql_select_db( $db );
 			mysql_query( 'set names ' . $charset );
 		}
+		else
+			throw new \IchiStatusException( 500, 'Failed connecting to database server:`'.$host.'`' );
 	}
 	
 	/**
@@ -37,19 +39,28 @@ class mysql implements \IDriver {
 	 * @return multitype:NULL |NULL
 	 */
 	function getData( $sql ) {
+		
+		// 获取查询结果集
 		$result = $this->query($sql);
 		
-		if( $result && mysql_num_rows($result)>0 ) {
+		// 行数
+		$numRows = mysql_num_rows($result);
+		
+		// 存在结果
+		if( $result && $numRows>0 ) {
 			
 			$data = array();
 			
-			for( $i=0; $i<mysql_num_rows($result); $i++ )
+			// 取出结果，储存数组
+			for( $i=0; $i<$numRows; $i++ )
 				$data[$i]= @mysql_fetch_array( $result , MYSQL_ASSOC );
 			
+			// 返回数组
 			return $data;
 		}
 		else
 			return NULL;
+		
 	}
 	
 	
