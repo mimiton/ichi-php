@@ -89,17 +89,3 @@ class Driver {
 	}
 
 }
-
-/**
- * @desc   驱动接口
- *         提供驱动类的抽象，所有驱动需使用此接口
- * @author xiaozheen
- *
- */
-interface IDriver {
-	/**
-	 * @desc  初始化
-	 * @param unknown $cfg
-	 */
-	public function init( $cfg );
-}
