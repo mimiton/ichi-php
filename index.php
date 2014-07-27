@@ -11,4 +11,4 @@ App::run();
 
 //debugging
 //Cookie::forever('abc', 'hahdiwjdjwoaks');
-echo '<h3>cookie:abc='.Cookie::get('abc').'</h3>';
+//echo '<h3>cookie:abc='.Cookie::get('abc').'</h3>';
