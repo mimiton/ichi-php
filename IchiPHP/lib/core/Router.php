@@ -6,6 +6,8 @@
  */
 class Router {
 	
+	// 根目录（主页）控制器
+	const HOMEPAGE_CONTROLLER_URI = '/_default/_root';
 	// 路由的目标应用
 	private static $appName;
 	// 特殊路由规则数组
@@ -105,11 +107,10 @@ class Router {
 		// 控制器命名空间
 		$nameSpace = ICHI_CONTROLLERS_NS . '\\' . self::$appName;
 		
-		// 访问的是根目录uri，路由至根目录特殊控制器
-		if( $uri == '/' ) {
-			self::routeToController( '/_default/_root' );
-			return true;
-		}
+		// 访问的是根目录uri（形如`/`,`///`这样）
+		// 路由至根目录特殊控制器
+		if( preg_match( '/^\/+$/', $uri ) )
+			$uri = self::HOMEPAGE_CONTROLLER_URI;
 		
 		// 用 `/` 拆解uri
 		$matches = explode( '/', $uri );
@@ -117,47 +118,85 @@ class Router {
 
 		// 遍历uri的每一层
 		// 在其对应的控制器目录每一层里寻找控制器
-		foreach ( $matches as $i => $name ) {
+		for( $i = 0; isset($matches[$i]); $i++ ) {
+			
+			$name = $matches[$i];
 			
 			// 当前层名字为空，跳过
-			if( empty($name) ) continue;
+			if( strlen($name) < 1 ) continue;
+			
+			// 寻找对应控制器php文件
+			$fileFound = self::findControllerFile( $path, $name );
+			
+			if( isset($fileFound) )
+				$name = $fileFound;
 			
 			// 进入下一层目录
 			$path      .= '/'  . $name;
 			// 进入下一层命名空间
 			$nameSpace .= '\\' . $name;
 			
-			// 控制器已经找到
-			if( isset($controller) ) {
-
-				// 剩下部分的uri做调用控制器的参数使用
-				$args = array_slice( $matches, $i );
+			// 有可用控制器php文件
+			if( isset($fileFound) ) {
 				
-				// 调用控制器方法
-				return Router::callControllerFn( $controller, $name, $args );
-				
-			}
-			
-			// 判断对应文件是否存在
-			else if( file_exists( $path . '.php' ) ) {
-				// 包含文件并创建控制器
+				// 载入文件并创建控制器
 				require_once $path . '.php';
 				
 				// 尝试用命名空间创建实例
 				if( class_exists($nameSpace) )
 					$controller = new $nameSpace();
+				
 				// 直接使用当前层的目录名创建
-				// （兼容未写命名空间的控制器php文件，不建议不写命名空间）
+				// （兼容未写命名空间的控制器php文件，建议都写上命名空间）
 				else
 					$controller = new $name();
+				
+				break;
+				
 			}
 			
 		}
 		
-		// uri没有下一层了
-		// 调用控制器的_default方法
-		return Router::callControllerFn( $controller, '_default' );
+		// URI遍历结束
 		
+		// 从停留在的URI层开始之后的每一个URI层名字
+		// 作调用控制器的参数使用
+		$args = array_slice( $matches, $i );
+		
+		// 向后一层URI的名字，作调用的目标方法名
+		$fnName = $matches[ $i+1 ];
+		
+		if( empty($fnName) )
+			$fnName = '_default';
+		
+		// 调用控制器方法
+		return Router::callControllerFn( $controller, $fnName, $args );
+		
+	}
+	
+	
+	/**
+	 * @desc  寻找指定目录下的指定名称所对应的控制器php文件
+	 *        向下兼容_numeric、_default模式
+	 * @param unknown $path
+	 * @param unknown $name
+	 * @return Ambigous <string, unknown>
+	 */
+	private static function findControllerFile( $path, $name ) {
+
+		// 判断对应文件是否存在
+		if( file_exists( $path . '/' . $name . '.php' ) )
+			$fileFound = $name;
+		
+		// _numeric.php，处理当前URI层为数字的情况
+		else if( is_numeric($name) && file_exists( $path . '/_numeric.php' ) )
+			$fileFound = '_numeric';
+		
+		// _default.php，处理当前URI层为任意字符的情况
+		else if( file_exists( $path . '/_default.php' ) )
+			$fileFound = '_default';
+		
+		return $fileFound;
 	}
 	
 	/**
