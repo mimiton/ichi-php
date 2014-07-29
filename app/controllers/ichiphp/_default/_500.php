@@ -1,6 +1,6 @@
 <?php
 
-namespace app\controllers\ichiphp\_default;
+namespace controllers\ichiphp\_default;
 
 class _500 {
 	

@@ -1,6 +1,6 @@
 <?php
 
-namespace app\controllers\ichiphp\b;
+namespace controllers\ichiphp\b;
 use \Response;
 
 class bar {

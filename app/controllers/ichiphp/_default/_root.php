@@ -1,6 +1,6 @@
 <?php
 
-namespace app\controllers\ichiphp\_default;
+namespace controllers\ichiphp\_default;
 use \Response;
 /**
  * @desc   站点根目录控制器

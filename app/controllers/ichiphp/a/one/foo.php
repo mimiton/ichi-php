@@ -1,6 +1,6 @@
 <?php
 
-namespace app\controllers\ichiphp\a\one;
+namespace controllers\ichiphp\a\one;
 
 class foo {
 	function hi() {

@@ -1,10 +1,10 @@
 <?php
 
-namespace app\controllers\ichiphp\b;
+namespace controllers\ichiphp\b;
 use \Model;
 use \Router;
 use \Response;
-use app\models\user\rank;
+use \models\user\rank;
 
 class foo {
 

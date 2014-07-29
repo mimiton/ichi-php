@@ -1,6 +1,6 @@
 <?php
 
-namespace app\models\user;
+namespace models\user;
 use \SQL;
 use \Driver;
 

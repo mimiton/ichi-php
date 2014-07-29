@@ -30,9 +30,9 @@ defined('ICHI_DRIVERS_PATH')     or define('ICHI_DRIVERS_PATH',     ICHI_EXTEND_
 /** ** ** ** ** ** ** ** ** ** ** ** ** **  命名空间 ** ** ** ** ** ** ** ** ** ** ** ** ** **/
 
 // 定义 控制器 命名空间
-defined('ICHI_CONTROLLERS_NS')   or define('ICHI_CONTROLLERS_NS',   '\app\controllers');
+defined('ICHI_CONTROLLERS_NS')   or define('ICHI_CONTROLLERS_NS',   '\controllers');
 // 定义 模型 命名空间
-defined('ICHI_MODELS_NS')        or define('ICHI_MODELS_NS',        '\app\models');
+defined('ICHI_MODELS_NS')        or define('ICHI_MODELS_NS',        '\models');
 // 定义 驱动 命名空间
 defined('ICHI_DRIVERS_NS')       or define('ICHI_DRIVERS_NS',       '\extend\drivers');
 
