@@ -107,7 +107,7 @@ class Router {
 		
 		// 访问的是根目录uri，路由至根目录特殊控制器
 		if( $uri == '/' ) {
-			self::to( self::$appName, '/_default/_root' );
+			self::routeToController( '/_default/_root' );
 			return true;
 		}
 		
