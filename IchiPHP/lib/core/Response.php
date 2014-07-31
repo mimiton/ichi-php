@@ -69,7 +69,7 @@ class Response {
 		// 默认视图文件路径为：app目录下views目录
 		// app目录取决于全局常量ICHI_APP_PATH的定义
 		if( !isset(self::$viewPath) )
-			self::$viewPath = ICHI_APP_PATH . '/views/';
+			self::$viewPath = ICHI_VIEWS_PATH;
 		
 		// 调用引擎实例的render方法
 		self::$viewEngine->render( self::$viewPath . $tplRelativePath );

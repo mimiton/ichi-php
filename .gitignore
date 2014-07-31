@@ -4,3 +4,19 @@
 .project
 
 .settings/org.eclipse.php.core.prefs
+
+.idea/.name
+
+.idea/encodings.xml
+
+.idea/ichi-php.iml
+
+.idea/misc.xml
+
+.idea/modules.xml
+
+.idea/scopes/scope_settings.xml
+
+.idea/vcs.xml
+
+.idea/workspace.xml
