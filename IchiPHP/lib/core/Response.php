@@ -72,7 +72,7 @@ class Response {
 			self::$viewPath = ICHI_VIEWS_PATH;
 		
 		// 调用引擎实例的render方法
-		self::$viewEngine->render( self::$viewPath . $tplRelativePath );
+		self::$viewEngine->render( self::$viewPath . '/' . $tplRelativePath );
 		
 	}
 	
