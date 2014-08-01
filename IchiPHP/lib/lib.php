@@ -43,15 +43,15 @@ defined('ICHI_DRIVERS_NS')       or define('ICHI_DRIVERS_NS',       '\extend\dri
 
 
 // 包含各模块
-require 'core/Interfaces.php';
-require 'core/SQL.php';
+require 'core/App.php';
 require 'core/Cookie.php';
-require 'core/Session.php';
+require 'core/DomainConfiger.php';
+require 'core/Driver.php';
+require 'core/Interfaces.php';
+require 'core/Model.php';
 require 'core/Request.php';
 require 'core/Response.php';
 require 'core/Router.php';
-require 'core/Driver.php';
-require 'core/Model.php';
-require 'core/App.php';
-
+require 'core/Session.php';
+require 'core/SQL.php';
 ?>
