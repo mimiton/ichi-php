@@ -12,20 +12,23 @@ class Router {
 	private static $appName;
 	// 特殊路由规则数组
 	private static $specialRoute;
-	
-	/**
-	 * @desc  配置参数
-	 * @param unknown $props
-	 */
-	static function config( $props ) {
-		
-		// 当前路由的应用名
-		self::$appName      = $props['appName'];
-		// 特殊路由规则
-		self::$specialRoute = $props['specialRoute'];
-		
-	}
-	
+
+    /**
+     * @desc  设置路由的目标应用名
+     * @param $name
+     */
+    static function setAppName( $name ) {
+        self::$appName = $name;
+    }
+
+    /**
+     * @desc  设置特殊重定向路由规则
+     * @param $route
+     */
+    static function setSpecialRoute( $route ) {
+        self::$specialRoute = $route;
+    }
+
 	/**
 	 * @desc  调用路由方法，并捕捉异常
 	 * @param unknown $uri             URI
