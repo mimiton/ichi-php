@@ -46,6 +46,7 @@ defined('ICHI_DRIVERS_NS')       or define('ICHI_DRIVERS_NS',       '\extend\dri
 require 'core/App.php';
 require 'core/Cookie.php';
 require 'core/DomainConfiger.php';
+require 'core/Loader.php';
 require 'core/Driver.php';
 require 'core/Interfaces.php';
 require 'core/Model.php';
