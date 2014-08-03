@@ -4,8 +4,8 @@
  * @author xiaozheen
  *
  */
-class Driver {
-	
+class Driver extends Loader {
+
 	static $defaultDrivers    = array();
 	static $defaultDriverCfgs = array();
 	
@@ -50,42 +50,24 @@ class Driver {
 		}
 		
 	}
-	
-	/**
-	 * @desc   载入驱动
-	 */
-	static function load( $driverPath, $autoInstatiate = false ) {
-		
-		// 驱动文件路径
-		$filePath  = ICHI_DRIVERS_PATH . $driverPath . '.php';
-		
-		// 文件不存在，抛出500异常，由Router类抓取
-		if( !file_exists($filePath) )
-			throw new IchiStatusException( 500, 'File of driver:`'.$driverPath.'` not found!' );
-		
-		// 载入文件
-		require_once $filePath;
 
-		// 非自动创建模式，返回
-		if( !$autoInstatiate )
-			return;
-			
-		// 驱动命名空间
-		$nameSpace = ICHI_DRIVERS_NS . str_replace( '/', '\\', $driverPath );
-		
-		// 尝试使用命名空间创建实例
-		if( class_exists($nameSpace) )
-			$driver = new $nameSpace();
-		// 降级，使用文件名创建实例
-		// 从文filePath中获取文件名：\foo\bar\abc => new abc();
-		else {
-			$matches = explode( '\\', $driverPath );
-			$className = $matches[ count($matches)-1 ];
-			$driver = new $className();
-		}
-		
-		return $driver;
-		
-	}
+    /**
+     * @desc  载入驱动
+     * @param $driverPath
+     * @param bool $autoInstantiate
+     * @return mixed
+     */
+    static function load( $driverPath, $autoInstantiate = false ) {
+
+        // 驱动根目录
+        $pathRoot       = ICHI_DRIVERS_PATH;
+        // 驱动根命名空间
+        $nameSpaceRoot  = ICHI_DRIVERS_NS;
+        // 抽象目录，例如：`/database/mysql` => 驱动目录下的`database/mysql.php`驱动文件
+        $abstractPath   = $driverPath;
+
+        return parent::load( $pathRoot, $nameSpaceRoot, $abstractPath, $autoInstantiate );
+
+    }
 
 }
