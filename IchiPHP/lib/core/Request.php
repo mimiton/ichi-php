@@ -4,21 +4,41 @@
  * @author xiaozheen
  */
 class Request {
-	
+
+    private static $method;
+
 	/**
 	 * @desc   获取请求方法
 	 * @return string
 	 */
 	static function getMethod() {
-		return strtoupper($_SERVER['REQUEST_METHOD']);
+
+        if( !isset(self::$method) )
+            self::$method = strtoupper($_SERVER['REQUEST_METHOD']);
+
+		return self::$method;
+
 	}
 	
 	/**
 	 * @desc   请求参数
 	 * @return unknown
 	 */
-	static function getParams() {
-		return $_REQUEST;
+	static function getParam( $key, $secure = true, $charset = 'UTF-8' ) {
+
+        $method = self::getMethod();
+
+        if( $method == 'GET' )
+            $param = $_GET[ $key ];
+
+        else if( $method == 'POST' )
+            $param = $_POST[ $key ];
+
+        if( $secure )
+            $param = htmlentities( $param, ENT_NOQUOTES, $charset );
+
+		return $param;
+
 	}
 	
 	/**
