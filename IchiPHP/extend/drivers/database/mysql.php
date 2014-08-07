@@ -21,7 +21,8 @@ class mysql implements \IDriver {
 		$db      = $cfg['database'];
 		$charset = $cfg['charset'];
 		
-		if( !$charset ) $charset = 'utf8';
+		if( !$charset )
+            $charset = 'utf8';
 		
 		$this->conn = mysql_connect( $host, $user, $pwd );
 		

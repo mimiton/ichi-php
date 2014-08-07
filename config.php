@@ -13,7 +13,8 @@ Driver::config(
 				'host'     => 'localhost',
 				'user'     => 'root',
 				'password' => '123456',
-				'database' => 'db_ichiso_main'
+				'database' => 'db_ichiso_main',
+                'charset'  => 'utf8'
 			),
 			'memcache' => array(
 				'path'     => '/cache/memcache',
