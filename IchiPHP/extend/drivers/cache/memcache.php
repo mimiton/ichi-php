@@ -16,23 +16,26 @@ class memcache implements \IDriver {
 	 * @see IDriver::init()
 	 */
 	function init( $cfg ) {
-		
+
+        if( class_exists('\Memcache') )
+            $this->cache = new \Memcache();
+
+        // Memcache扩展不可用时降级使用文件cache
+        else
+            $this->cache = \Driver::load( '/cache/file_cache', true );
+
 		$host   = $cfg['host'];
 		$port   = $cfg['port'];
-		
-		if( class_exists('\Memcache') )
-			$this->cache = new \Memcache();
-		else
-			throw new \IchiStatusException( 500, 'Memcache class is not available' );
-		
+
 		if( !is_array($host) )
-			$servers = array( 'host' => $host, 'port' => $port );
+			$servers = array( array('host' => $host, 'port' => $port) );
 		else
 			$servers = $host;
-		
+
 		foreach ( $servers as $item ) {
 			$this->cache->addServer( $item['host'], $item['port'] );
 		}
+
 	}
 	
 	/**
@@ -41,9 +44,19 @@ class memcache implements \IDriver {
 	 * @param unknown $val
 	 */
 	function set( $key, $val ) {
-		$this->cache->set( $key, $val );
+		return $this->cache->set( $key, $val );
 	}
-	
+
+    /**
+     * @desc  添加缓存值（不覆盖）
+     * @param $key
+     * @param $val
+     * @return mixed
+     */
+    function add( $key, $val ) {
+        return $this->cache->add( $key, $val );
+    }
+
 	/**
 	 * @desc  获取缓存值
 	 * @param unknown $key
