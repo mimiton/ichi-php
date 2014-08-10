@@ -57,7 +57,7 @@ class Driver extends Loader {
      * @param bool $autoInstantiate
      * @return mixed
      */
-    static function load( $driverPath, $autoInstantiate = false ) {
+    static function load( $driverPath, $autoInstantiate = false, $configs = NULL ) {
 
         // 驱动根目录
         $pathRoot       = ICHI_DRIVERS_PATH;
@@ -66,7 +66,14 @@ class Driver extends Loader {
         // 抽象目录，例如：`/database/mysql` => 驱动目录下的`database/mysql.php`驱动文件
         $abstractPath   = $driverPath;
 
-        return parent::load( $pathRoot, $nameSpaceRoot, $abstractPath, $autoInstantiate );
+        $instance = parent::load( $pathRoot, $nameSpaceRoot, $abstractPath, $autoInstantiate );
+
+        // 自动调用驱动初始化方法
+        if( $autoInstantiate && method_exists( $instance, 'init' ) )
+            $instance->init( $configs );
+
+
+        return $instance;
 
     }
 
