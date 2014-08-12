@@ -18,7 +18,7 @@ class SQL {
 		$instance->method    = 'SELECT';
 		$instance->tableName = $table;
 		$instance->conditionLogicNeed = false;
-		$instance->joinLogicNeed = false;
+		$instance->joinLogicNeed      = false;
 		
 		return $instance;
 		
@@ -40,61 +40,75 @@ class SQL {
 	 * @return string
 	 */
 	static function arr2ConditionString( $arr ) {
+
 		if( !is_array($arr) )
 			return '';
-		
+
+        // 一维数组转换成二维
 		if( !is_array($arr[0]) )
 			$arr = array($arr);
 		
 		$str = '';
 		foreach ( $arr as $i => $v ) {
-			
+
+            // 逻辑符（AND、OR...）
+            $logic = $v[0];
+            // 操作字段
+            $field = $v[1];
+            // 大写操作符
+            $operator = strtoupper($v[2]);
+            // 第一个操作参数
+            $firstParam  = $v[3];
+            // 第二个操作参数
+            $secondParam = $v[4];
+
+
 			// 逻辑符
-			$str .= ' ' .strtoupper( $v[0] ). ' ';
+			$str .= ' ' .strtoupper( $logic ). ' ';
 			
-			// 包含子条件，递归
-			if( is_array($v[1]) )
-				$str .= '( ' . self::arr2ConditionString( $v[1] ) . ' )';
+			// 字段为数组，包含子条件，递归生成子条件语句
+			if( is_array($field) )
+				$str .= '( ' . self::arr2ConditionString( $field ) . ' )';
 			
 			// 正常添加
+            // 注：
+            //    self::wrapValue()作用：将操作参数中非数字的值用引号包裹起来
 			else {
 
-				// 大写操作符
-				$operator = strtoupper($v[2]);
-				
 				// 操作符为(NOT )IN的情况
 				if( $operator == 'IN' || $operator == 'NOT IN' ) {
 
-					if( is_array($v[3]) ) 
-						$value_1 = implode( ',', self::wrapValue($v[3]) );
-					
-					else
-						$value_1 = $v[3];
-					
-					$value_1 = '(' .$value_1. ')';
+                    // 用逗号切割第一个参数为数组
+                    $value_1 = is_array($firstParam)? $firstParam: explode( ',', $firstParam );
+
+                    // 引号包裹
+                    $value_1 = self::wrapValue( $value_1 );
+
+                    // 逗号连接参数
+					$value_1 = '(' .implode( ',', $value_1 ). ')';
 					
 				}
-				// 普通操作符情况
+				// 普通操作符情况（ (不)大/小/等于... ）
 				else
-					$value_1 = self::wrapValue($v[3]);
+					$value_1 = self::wrapValue($firstParam);
 				
-				// 添加语句
-				$str .= '`' .$v[1]. '` ' .$operator. ' ' .$value_1;
+				// 添加条件语句
+				$str .= '`' .$field. '` ' .$operator. ' ' .$value_1;
 				
 				// 操作符为(NOT )BETWEEN，补充添加第二个值
-				if( $operator == 'BETWEEN' || $operator == 'NOT BETWEEN' ) {
-					$str .= ' AND ' .self::wrapValue($v[4]);
-				}
+				if( $operator == 'BETWEEN' || $operator == 'NOT BETWEEN' )
+					$str .= ' AND ' .self::wrapValue($secondParam);
 				
 				$str .= ' ';
+
 			}
 		}
 		return $str;
 	}
 	
 	/**
-	 * @desc  用引号包裹非数字的值
-	 * @param unknown $str
+	 * @desc   用引号包裹非数字的值
+	 * @param  unknown $str
 	 * @return unknown|string
 	 */
 	static function wrapValue( $strOrArr ) {
@@ -118,14 +132,15 @@ class SQL {
 	}
 	
 	/**
-	 * @desc  转换字段列表数组为字符串
-	 * @param unknown $fields
-	 * @return string|unknown
+	 * @desc   转换字段列表数组为字符串
+	 * @param  String|Array $fields
+	 * @return String
 	 */
 	static function fields2string( $fields ) {
 		
 		if( is_array($fields) )
 			return implode( ',', $fields );
+
 		else if( is_string($fields) )
 			return $fields;
 		
@@ -137,7 +152,8 @@ class SQL {
 	 * @return string
 	 */
 	function get() {
-		
+
+        // 模式
 		if( $this->method == 'SELECT' )
 			$sql = $this->getSelect();
 		else if( $this->method == 'UPDATE' )
@@ -145,12 +161,19 @@ class SQL {
 		else if( $this->method == 'INSERT' )
 			$sql = $this->getInsert();
 
+        // 条件
 		if( $this->condition )
 			$sql .= ' WHERE '.$this->condition;
+
+        // 排序
 		if( $this->orderSql )
 			$sql .= ' ORDER BY '.$this->orderSql;
+
+        // 聚合
 		if( $this->groupSql )
 			$sql .= ' GROUP BY '.$this->groupSql;
+
+        // limit
 		if( $this->limitSql )
 			$sql .= ' LIMIT '.$this->limitSql;
 	
@@ -178,7 +201,7 @@ class SQL {
 	 */
 	private function getUpdate() {
 		
-		$sql = 'UPDATE `'.$this->tableName.'` SET ';
+		$sql = 'UPDATE `'.$this->tabName.'` SET ';
 		
 		$valsArr = array();
 		foreach ( $this->valuesToUpdate as $k => $v ) {
@@ -187,7 +210,7 @@ class SQL {
 			if( preg_match( '/^([\+\-\*\/])=(\d+)$/i', $v, $matches ) )
 				$valsArr[] = '`'.$k.'`=`'.$k.'`'.$matches[1].$matches[2];
 			else
-				$valsArr[] = '`'.$k.'`='.SQL::wrapValue($v);
+				$valsArr[] = '`'.$k.'`='.self::wrapValue($v);
 			
 		}
 		$sql .= implode( ',', $valsArr );
@@ -200,12 +223,18 @@ class SQL {
 	 * @desc   获取INSERT查询语句
 	 */
 	private function getInsert() {
+
+        $fields = '';
+        $values = '';
+
 		$sql = 'INSERT INTO `'.$this->tableName.'` ';
 		
 		foreach ( $this->valuesToInsert as $k => $v ) {
 			$fields .= '`'.$k.'`,';
-			$values .= SQL::wrapValue($v).',';
+			$values .= self::wrapValue($v).',';
 		}
+
+        // 去掉末尾逗号
 		$fields = substr($fields,0,-1);
 		$values = substr($values,0,-1);
 		
@@ -226,7 +255,7 @@ class SQL {
 			return $this;
 		
 		// 转换字段列表为逗号连接的字符串
-		$str = SQL::fields2string( $fields );
+		$str = self::fields2string( $fields );
 		
 		$this->fields .= ($this->fields? ',' : '') . $str;
 		
@@ -258,6 +287,7 @@ class SQL {
 	 * @desc 设置操作为INSERT
 	 */
 	function insert( $field = NULL, $value = NULL ) {
+
 		$this->method = 'INSERT';
 		
 		if( $field )
@@ -299,18 +329,25 @@ class SQL {
 			
 			// 标记逻辑符开关为不需要
 			$this->conditionLogicNeed = false;
+
 		}
+
 		else if( $mode == 'JOIN' && $this->joinLogicNeed ) {
+
 			$this->joinSql .= ' '.$logic.' ';
-			$this->joinLogicNeed = false;
+
+            $this->joinLogicNeed = false;
+
 		}
+
 	}
 	
 	/**
 	 * @desc  添加 AND 的where条件
 	 * @param unknown $field
 	 * @param unknown $operator
-	 * @param unknown $value
+	 * @param unknown $value    第一个操作值
+     * @param unknown $value_2  第二个操作值（如：BETWEEN条件，需要两个操作值）
 	 * @return SQL
 	 */
 	function where( $field, $operator, $value, $value_2 = NULL ) {
@@ -319,7 +356,7 @@ class SQL {
 		$this->addLogic( 'AND' );
 		
 		// 添加条件
-		$this->condition .= SQL::arr2ConditionString(array( '', $field, $operator, $value, $value_2 ));
+		$this->condition .= self::arr2ConditionString(array( '', $field, $operator, $value, $value_2 ));
 
 		// 开启逻辑符开关
 		$this->conditionLogicNeed = true;
@@ -343,15 +380,15 @@ class SQL {
 		
 		// 数组形式子条件
 		if( is_array($field) ) {
-			$this->condition .= '(' . SQL::arr2ConditionString($field) . ')';
+			$this->condition .= '(' . self::arr2ConditionString($field) . ')';
 		}
 		else if( !$operator || !$value ) {
 			
 			// json形式子条件
 			if( is_string($field) )
-				$this->condition .= '(' . SQL::json2ConditionString($field) . ')';
+				$this->condition .= '(' . self::json2ConditionString($field) . ')';
 			// 匿名方法子条件
-			else {
+			else if( is_callable($field) ){
 				$this->condition .= '(';
 				$field($this);
 				$this->condition .= ')';
@@ -359,7 +396,7 @@ class SQL {
 		}
 		// 普通形式
 		else {
-			$this->condition .= SQL::arr2ConditionString( array( '', $field, $operator, $value, $value_2 ) );
+			$this->condition .= self::arr2ConditionString( array( '', $field, $operator, $value, $value_2 ) );
 		}
 		
 		// 开启逻辑符开关
@@ -423,19 +460,31 @@ class SQL {
 	 * @param string $mode
 	 * @return SQL
 	 */
-	function join( $table, $field_1, $operator = NULL, $field_2 = NULL, $mode = '' ) {
+	function join( $table, $field_1 = NULL, $operator = NULL, $field_2 = NULL, $mode = '' ) {
 		
 		$this->joinSql .= $mode .' JOIN `'. $table .'` ON ';
-		
-		if( isset($field_1) && isset($operator) && isset($field_2) ) {
+
+        if( isset($field_1) )
 			$this->on( $field_1, $operator, $field_2 );
-		}
-		// 其余参数为空，$field_1作function使用，在其内部添加多个on连接字段
-		else
-			$field_1( $this );
-		
+
 		return $this;
 	}
+
+    /**
+     * @desc  左join
+     * @param $table
+     * @param $field_1
+     * @param null $operator
+     * @param null $field_2
+     * @return $this
+     */
+    function leftJoin( $table, $field_1, $operator = NULL, $field_2 = NULL ) {
+
+        $this->join( $table, $field_1, $operator, $field_2, 'LEFT' );
+
+        return $this;
+
+    }
 	
 	/**
 	 * @desc  添加join的on连接字段
@@ -447,9 +496,19 @@ class SQL {
 	 */
 	function on( $field_1, $operator, $field_2, $logic = 'AND' ) {
 		$this->addLogic( $logic, 'JOIN' );
-		$this->joinSql .= $field_1 .' '. $operator .' '. $field_2 .' ';
-		$this->joinLogicNeed = true;
+
+        if( is_callable($field_1) ) {
+            if( $logic != 'AND' ) $this->joinSql .= '(';
+            $field_1($this);
+            if( $logic != 'AND' ) $this->joinSql .= ')';
+        }
+        else
+		    $this->joinSql .= '`'. $field_1 .'` '. $operator .' '. self::wrapValue($field_2) .' ';
+
+        $this->joinLogicNeed = true;
+
 		return $this;
+
 	}
 	
 	/**
@@ -459,7 +518,7 @@ class SQL {
 	 * @param unknown $field_2
 	 * @return SQL
 	 */
-	function orOn( $field_1, $operator, $field_2 ) {
+	function orOn( $field_1, $operator = NULL, $field_2 = NULL ) {
 		$this->on( $field_1, $operator, $field_2, 'OR' );
 		return $this;
 	}
