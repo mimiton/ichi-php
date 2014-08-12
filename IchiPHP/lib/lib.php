@@ -40,6 +40,15 @@ defined('ICHI_DRIVERS_NS')       or define('ICHI_DRIVERS_NS',       '\extend\dri
 
 /** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **/
 
+/** ** ** ** ** ** ** ** ** ** ** ** ** ** 特殊URI常量 ** ** ** ** ** ** ** ** ** ** ** ** ** **/
+
+// 应用首页控制器URI
+defined('ICHI_URI_APP_HOMEPAGE_CONTROLLER')  or define('ICHI_URI_APP_HOMEPAGE_CONTROLLER',  '/_default/_root');
+
+// 应用初始化控制器URI
+defined('ICHI_URI_APP_INIT_CONTROLLER')  or define('ICHI_URI_APP_INIT_CONTROLLER',  '/_default/_init');
+
+/** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **/
 
 
 // 包含各模块

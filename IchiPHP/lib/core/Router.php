@@ -5,9 +5,7 @@
  *
  */
 class Router {
-	
-	// 根目录（主页）控制器
-	const HOMEPAGE_CONTROLLER_URI = '/_default/_root';
+
 	// 路由的目标应用
 	private static $appName;
 	// 特殊路由规则数组
@@ -113,7 +111,7 @@ class Router {
 		// 访问的是根目录uri（形如`/`,`///`这样）
 		// 路由至根目录特殊控制器
 		if( preg_match( '/^\/+$/', $uri ) )
-			$uri = self::HOMEPAGE_CONTROLLER_URI;
+			$uri = ICHI_URI_APP_HOMEPAGE_CONTROLLER;
 		
 		// 用 `/` 拆解uri
 		$matches = explode( '/', $uri );

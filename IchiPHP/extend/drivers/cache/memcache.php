@@ -27,14 +27,15 @@ class memcache implements \IDriver {
 		$host   = $cfg['host'];
 		$port   = $cfg['port'];
 
+        // 转换连接参数为数组形式
 		if( !is_array($host) )
 			$servers = array( array('host' => $host, 'port' => $port) );
 		else
 			$servers = $host;
 
-		foreach ( $servers as $item ) {
+        // 遍历连接参数，连接多个服务端
+		foreach ( $servers as $item )
 			$this->cache->addServer( $item['host'], $item['port'] );
-		}
 
 	}
 	

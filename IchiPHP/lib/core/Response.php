@@ -5,11 +5,18 @@
  *
  */
 class Response {
-	
+
+    // 默认视图引擎名称
 	private static $viewEngineName = 'IchiViewEngine';
-	private static $viewPath;
+
+    // 视图文件目录
+    // 默认视图文件路径为：app目录下views目录
+    // app目录取决于全局常量ICHI_APP_PATH的定义
+	private static $viewPath = ICHI_VIEWS_PATH;
+
+    // 视图引擎实例
 	private static $viewEngine;
-	
+
 	/**
 	 * @desc  设置视图（模板）引擎
 	 * @param unknown $engine
@@ -37,8 +44,8 @@ class Response {
 	
 	/**
 	 * @desc  设置模板渲染的数据
-	 * @param unknown $key
-	 * @param unknown $value
+	 * @param String|Array $key
+	 * @param String       $value
 	 */
 	static function assign( $key, $value = NULL ) {
 		
@@ -46,12 +53,13 @@ class Response {
 		self::initViewEngine();
 		
 		// 设置视图变量键值对
-		if( !is_array( $key ) ) {
+        // $key可为字符串或数组
+		if( !is_array( $key ) )
 			$keyValues = array( $key => $value );
-		}
+
 		else
 			$keyValues = $key;
-		
+
 		foreach ( $keyValues as $k => $v )
 			self::$viewEngine->assign( $k, $v );
 		
@@ -65,11 +73,6 @@ class Response {
 		
 		// 初始化视图引擎实例
 		self::initViewEngine();
-		
-		// 默认视图文件路径为：app目录下views目录
-		// app目录取决于全局常量ICHI_APP_PATH的定义
-		if( !isset(self::$viewPath) )
-			self::$viewPath = ICHI_VIEWS_PATH;
 		
 		// 调用引擎实例的render方法
 		self::$viewEngine->render( self::$viewPath . '/' . $tplRelativePath );
@@ -87,11 +90,11 @@ class Response {
 			// 引擎名
 			$engineName = self::$viewEngineName;
 			
-			// 文件路径
-			$fileRelativePath = '/viewengine/' . $engineName;
+			// 文件抽象路径
+			$fileAbstractPath = '/viewengine/' . $engineName;
 			
 			// 载入驱动文件并创建实例
-			self::$viewEngine = Driver::load( $fileRelativePath, true );
+			self::$viewEngine = Driver::load( $fileAbstractPath, true );
 			
 		}
 		

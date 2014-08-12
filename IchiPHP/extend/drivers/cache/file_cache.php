@@ -41,6 +41,11 @@ class file_cache implements \IDriver {
 
     }
 
+    /**
+     * @desc   获取
+     * @param  $key
+     * @return mixed|null
+     */
     function get( $key ) {
 
         $path = $this->path( $key );
@@ -52,6 +57,12 @@ class file_cache implements \IDriver {
 
     }
 
+    /**
+     * @desc   设置
+     * @param  $key
+     * @param  $value
+     * @return bool   true-成功 false-失败
+     */
     function set( $key, $value ) {
 
         $path = $this->path( $key );
@@ -64,6 +75,12 @@ class file_cache implements \IDriver {
 
     }
 
+    /**
+     * @desc   添加值（不覆盖）
+     * @param  $key
+     * @param  $value
+     * @return bool   true-成功 false-失败
+     */
     function add( $key, $value ) {
 
         $path = $this->path( $key );
