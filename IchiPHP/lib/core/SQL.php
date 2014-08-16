@@ -11,12 +11,16 @@ class SQL {
 	 * @param unknown $table
 	 * @return SQL
 	 */
-	static function table( $table ) {
+	static function table( $table, $alias = NULL ) {
 		
 		$instance = new SQL();
 		
 		$instance->method    = 'SELECT';
+
 		$instance->tableName = $table;
+        if( $alias != NULL )
+            $instance->tableName .= ' '.$alias;
+
 		$instance->conditionLogicNeed = false;
 		$instance->joinLogicNeed      = false;
 		
@@ -25,21 +29,21 @@ class SQL {
 	}
 	
 	/**
-	 * @desc  转换json成where条件
-	 * @param unknown $json
-	 * @return string
+	 * @desc   转换json成where条件
+	 * @param  String $json
+	 * @return String
 	 */
-	static function json2ConditionString( $json ) {
+	private static function json2ConditionString( $json ) {
 		$arr = json_decode( stripcslashes($json), true );
 		return self::arr2ConditionString( $arr );
 	}
 	
 	/**
-	 * @desc  转换数组成where条件
-	 * @param unknown $arr
-	 * @return string
+	 * @desc   转换数组成where条件
+	 * @param  Array $arr
+	 * @return String
 	 */
-	static function arr2ConditionString( $arr ) {
+	private static function arr2ConditionString( $arr ) {
 
 		if( !is_array($arr) )
 			return '';
@@ -161,9 +165,12 @@ class SQL {
 		else if( $this->method == 'INSERT' )
 			$sql = $this->getInsert();
 
-        // 条件
+        // where条件
 		if( $this->condition )
 			$sql .= ' WHERE '.$this->condition;
+        // join语句
+        if( $this->joinSql )
+            $sql .= ' '.$this->joinSql;
 
         // 排序
 		if( $this->orderSql )
@@ -176,9 +183,6 @@ class SQL {
         // limit
 		if( $this->limitSql )
 			$sql .= ' LIMIT '.$this->limitSql;
-	
-		if( $this->joinSql )
-			$sql .= ' '.$this->joinSql;
 		
 		return $sql;
 	}
@@ -249,7 +253,7 @@ class SQL {
 	 * @throws Exception
 	 * @return SQL
 	 */
-	function select( $fields ) {
+	function select( $fields = '*' ) {
 		
 		if( $this->method !== 'SELECT' )
 			return $this;
@@ -471,6 +475,22 @@ class SQL {
 	}
 
     /**
+     * @desc  inner join
+     * @param $table
+     * @param $field_1
+     * @param null $operator
+     * @param null $field_2
+     * @return $this
+     */
+    function innerJoin( $table, $field_1 = NULL, $operator = NULL, $field_2 = NULL ) {
+
+        $this->join( $table, $field_1, $operator, $field_2, 'INNER' );
+
+        return $this;
+
+    }
+
+    /**
      * @desc  左join
      * @param $table
      * @param $field_1
@@ -478,9 +498,25 @@ class SQL {
      * @param null $field_2
      * @return $this
      */
-    function leftJoin( $table, $field_1, $operator = NULL, $field_2 = NULL ) {
+    function leftJoin( $table, $field_1 = NULL, $operator = NULL, $field_2 = NULL ) {
 
         $this->join( $table, $field_1, $operator, $field_2, 'LEFT' );
+
+        return $this;
+
+    }
+
+    /**
+     * @desc  右join
+     * @param $table
+     * @param $field_1
+     * @param null $operator
+     * @param null $field_2
+     * @return $this
+     */
+    function rightJoin( $table, $field_1 = NULL, $operator = NULL, $field_2 = NULL ) {
+
+        $this->join( $table, $field_1, $operator, $field_2, 'RIGHT' );
 
         return $this;
 
@@ -503,7 +539,7 @@ class SQL {
             if( $logic != 'AND' ) $this->joinSql .= ')';
         }
         else
-		    $this->joinSql .= '`'. $field_1 .'` '. $operator .' '. self::wrapValue($field_2) .' ';
+		    $this->joinSql .= '`'. $field_1 .'` '. $operator .' `'. $field_2 .'` ';
 
         $this->joinLogicNeed = true;
 
