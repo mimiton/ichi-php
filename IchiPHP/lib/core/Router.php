@@ -167,7 +167,7 @@ class Router {
 		// 向后一层URI的名字，作调用的目标方法名
 		$fnName = $matches[ $i+1 ];
 		
-		if( empty($fnName) )
+		if( strlen($fnName) < 1 )
 			$fnName = '_default';
 		
 		// 调用控制器方法

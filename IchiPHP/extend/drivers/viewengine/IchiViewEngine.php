@@ -30,9 +30,9 @@ class IchiViewEngine implements \IViewEngine {
 		foreach ( $this->vars as $k => $v )
 			$$k = $v;
 
-        if( !file_exists( $tplPath ) ) {
+        if( !file_exists( $tplPath ) )
             throw new \IchiStatusException( 404, 'View file: `' . $tplPath . '` NOT FOUND!' );
-        }
+
         else
 		    include $tplPath;
 		
