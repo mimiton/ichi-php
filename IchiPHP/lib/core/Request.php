@@ -6,6 +6,7 @@
 class Request {
 
     private static $method;
+    private static $params;
 
 	/**
 	 * @desc   获取来源请求的method方法类型
@@ -32,9 +33,19 @@ class Request {
         // 根据method类型获取对应请求参数
         if( $method == 'GET' )
             $param = $_GET[ $key ];
-
         else if( $method == 'POST' )
             $param = $_POST[ $key ];
+
+        // 其他情况的参数获取
+        else {
+
+            if( !isset(self::$params) )
+                parse_str( file_get_contents('php://input'), self::$params );
+
+            $param = self::$params[ $key ];
+
+        }
+
 
         // 安全模式，过滤html字符
         if( $secure )
