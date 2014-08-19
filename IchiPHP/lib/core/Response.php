@@ -32,7 +32,16 @@ class Response {
 	static function setViewPath( $path ) {
 		self::$viewPath = $path;
 	}
-	
+
+    /**
+     * @desc  设置响应头
+     * @param $key
+     * @param $value
+     */
+    static function setHeader( $key, $value ) {
+        header( $key .':'. $value );
+    }
+
 	/**
 	 * @desc  直接输出字符
 	 * @param unknown $data
@@ -40,6 +49,38 @@ class Response {
 	static function write( $data ) {
 		echo $data;
 	}
+
+    /**
+     * @desc  输出XML文档
+     * @param $data
+     * @return bool
+     */
+    static function writeXML( $data ) {
+
+        if( !is_array($data) )
+            return false;
+
+        self::write( Util::array2XML( $data ) );
+
+        self::setHeader( 'Content-Type', 'application/xml' );
+
+    }
+
+    /**
+     * @desc  输出JSON文档
+     * @param $data
+     * @return bool
+     */
+    static function writeJSON( $data ) {
+
+        if( !is_array($data) )
+            return false;
+
+        self::write( Util::array2JSON($data) );
+
+        self::setHeader( 'Content-Type', 'application/json');
+
+    }
 	
 	
 	/**
