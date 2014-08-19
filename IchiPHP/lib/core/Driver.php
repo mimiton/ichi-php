@@ -6,50 +6,47 @@
  */
 class Driver extends Loader {
 
-	static $defaultDrivers    = array();
-	static $defaultDriverCfgs = array();
-	
-	/**
-	 * @desc  配置预设驱动等
-	 * @param unknown $props
-	 */
-	static function config( $props ) {
-	
-		// 储存预设驱动配置信息，以alias别名为索引
-		foreach ( $props['defaultDrivers'] as $alias => $cfg ) {
-			self::$defaultDriverCfgs[ $alias ] = $cfg;
-		}
-	
-	}
-	
-	/**
-	 * @desc  使用预设驱动
-	 * @param unknown $alias
-	 */
-	static function useDefault( $alias ) {
-		
-		// 驱动实例存在，直接返回
-		if( isset( self::$defaultDrivers[ $alias ] ) )
-			return self::$defaultDrivers[ $alias ];
-		
-		// 驱动配置信息存在，使用它进行初始化
-		if( isset( self::$defaultDriverCfgs[ $alias ] ) ) {
-			
-			// 驱动配置信息
-			$cfg = self::$defaultDriverCfgs[ $alias ];
-			
-			// 载入驱动，获取创建好的实例
-			self::$defaultDrivers[ $alias ] = self::load( $cfg['path'], true );
-			
-			// 初始化驱动实例
-			self::$defaultDrivers[ $alias ]->init( $cfg );
-			
-			// 返回实例
-			return self::$defaultDrivers[ $alias ];
-			
-		}
-		
-	}
+    static $defaultDrivers    = array();
+    static $defaultDriverCfgs = array();
+
+    /**
+     * @desc  配置预设驱动等
+     * @param unknown $props
+     */
+    static function config( $props ) {
+
+        // 储存预设驱动配置信息，以alias别名为索引
+        foreach ( $props['defaultDrivers'] as $alias => $cfg ) {
+            self::$defaultDriverCfgs[ $alias ] = $cfg;
+        }
+
+    }
+
+    /**
+     * @desc  使用预设驱动
+     * @param unknown $alias
+     */
+    static function useDefault( $alias ) {
+
+        // 驱动实例存在，直接返回
+        if( isset( self::$defaultDrivers[ $alias ] ) )
+            return self::$defaultDrivers[ $alias ];
+
+        // 驱动配置信息存在，使用它进行初始化
+        if( isset( self::$defaultDriverCfgs[ $alias ] ) ) {
+
+            // 驱动配置信息
+            $cfg = self::$defaultDriverCfgs[ $alias ];
+
+            // 载入驱动，获取创建好的实例
+            self::$defaultDrivers[ $alias ] = self::load( $cfg['path'], true, $cfg );
+
+            // 返回实例
+            return self::$defaultDrivers[ $alias ];
+
+        }
+
+    }
 
     /**
      * @desc  载入驱动
