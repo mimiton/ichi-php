@@ -35,6 +35,8 @@ defined('ICHI_DRIVERS_PATH')     or define('ICHI_DRIVERS_PATH',     ICHI_EXTEND_
 defined('ICHI_CONTROLLERS_NS')   or define('ICHI_CONTROLLERS_NS',   '\controllers');
 // 定义 模型 命名空间
 defined('ICHI_MODELS_NS')        or define('ICHI_MODELS_NS',        '\models');
+// 定义 扩展 命名空间
+defined('ICHI_EXTEND_NS')        or define('ICHI_EXTEND_NS',        '\extend');
 // 定义 驱动 命名空间
 defined('ICHI_DRIVERS_NS')       or define('ICHI_DRIVERS_NS',       '\extend\drivers');
 
@@ -57,6 +59,7 @@ require 'core/Cookie.php';
 require 'core/DomainConfiger.php';
 require 'core/Loader.php';
 require 'core/Driver.php';
+require 'core/Extend.php';
 require 'core/Interfaces.php';
 require 'core/Model.php';
 require 'core/Request.php';
@@ -64,4 +67,5 @@ require 'core/Response.php';
 require 'core/Router.php';
 require 'core/Session.php';
 require 'core/SQL.php';
+require 'core/Util.php';
 ?>
