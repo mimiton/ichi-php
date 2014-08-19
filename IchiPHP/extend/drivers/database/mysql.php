@@ -43,7 +43,12 @@ class mysql implements \IDriver {
 		
 		// 获取查询结果集
 		$result = $this->query($sql);
-		
+
+        if( !$result ) {
+            $msg = 'mysql error:`'.mysql_error().'`. sql str:`'.$sql.'`';
+            throw new \IchiStatusException( 500, $msg );
+        }
+
 		// 行数
 		$numRows = mysql_num_rows($result);
 		
