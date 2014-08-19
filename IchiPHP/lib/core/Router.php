@@ -208,9 +208,12 @@ class Router {
 	private static function callControllerFn( $controller, $fnName, $args = NULL ) {
 		
 		if( !isset($controller) ) return false;
-		
+
+        // 请求方法
+        $reqMethod = Request::getMethod();
+
 		// 添加带有请求方法后缀的方法名
-		$fnNameWithMethod = $fnName . '_' . Request::getMethod();
+		$fnNameWithMethod = $fnName . '_' . $reqMethod;
 		
 		// 调用->functionName_GET()
 		//    ->functionName_POST()
@@ -225,14 +228,37 @@ class Router {
 			$controller->$fnName( $args );
 		
 		// 数字类型方法
-		else if( is_numeric($fnName) && method_exists( $controller, '_numeric' ) )
-			$controller->_numeric( $fnName, $args );
+		else if( is_numeric($fnName) ) {
+
+            $number = $fnName;
+
+            $fnNameWithMethod = '_numeric_'.$reqMethod;
+
+            // _numeric_{GET|POST|PUT|DELETE}();
+            if( method_exists( $controller, $fnNameWithMethod ) )
+                $controller->$fnNameWithMethod( $number, $args );
+
+            // _numeric();
+            else if( method_exists( $controller, '_numeric' ) )
+                $controller->_numeric( $number, $args );
+
+        }
 		
 		// 默认方法
-		else if( method_exists( $controller, '_default' ) )
-			$controller->_default( $args );
-		else
-			return false;
+        else {
+
+            $fnNameWithMethod = '_default_'.$reqMethod;
+
+            if( method_exists( $controller, $fnNameWithMethod ) )
+                $controller->$fnNameWithMethod( $args );
+
+            else if( method_exists( $controller, '_default' ) )
+                $controller->_default( $args );
+
+            else
+                return false;
+
+        }
 		
 		return true;
 	}
