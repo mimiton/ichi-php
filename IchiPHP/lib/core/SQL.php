@@ -97,7 +97,7 @@ class SQL {
 					$value_1 = self::wrapValue($firstParam);
 				
 				// 添加条件语句
-				$str .= '`' .$field. '` ' .$operator. ' ' .$value_1;
+				$str .= '' .$field. ' ' .$operator. ' ' .$value_1;
 				
 				// 操作符为(NOT )BETWEEN，补充添加第二个值
 				if( $operator == 'BETWEEN' || $operator == 'NOT BETWEEN' )
@@ -165,13 +165,13 @@ class SQL {
 		else if( $this->method == 'INSERT' )
 			$sql = $this->getInsert();
 
-        // where条件
-		if( $this->condition )
-			$sql .= ' WHERE '.$this->condition;
         // join语句
         if( $this->joinSql )
             $sql .= ' '.$this->joinSql;
-
+        // where条件
+		if( $this->condition )
+			$sql .= ' WHERE '.$this->condition;
+        
         // 排序
 		if( $this->orderSql )
 			$sql .= ' ORDER BY '.$this->orderSql;
@@ -193,7 +193,7 @@ class SQL {
 	 */
 	private function getSelect() {
 		
-		$sql =	'SELECT '.$this->fields.' FROM `'.$this->tableName.'`';
+		$sql =	'SELECT '.$this->fields.' FROM '.$this->tableName;
 		
 		return $sql;
 		
@@ -205,16 +205,16 @@ class SQL {
 	 */
 	private function getUpdate() {
 		
-		$sql = 'UPDATE `'.$this->tabName.'` SET ';
+		$sql = 'UPDATE '.$this->tabName.' SET ';
 		
 		$valsArr = array();
 		foreach ( $this->valuesToUpdate as $k => $v ) {
 			
 			// 处理自增/减/乘/除
 			if( preg_match( '/^([\+\-\*\/])=(\d+)$/i', $v, $matches ) )
-				$valsArr[] = '`'.$k.'`=`'.$k.'`'.$matches[1].$matches[2];
+				$valsArr[] = $k.'='.$k.$matches[1].$matches[2];
 			else
-				$valsArr[] = '`'.$k.'`='.self::wrapValue($v);
+				$valsArr[] = $k.'='.self::wrapValue($v);
 			
 		}
 		$sql .= implode( ',', $valsArr );
@@ -231,10 +231,10 @@ class SQL {
         $fields = '';
         $values = '';
 
-		$sql = 'INSERT INTO `'.$this->tableName.'` ';
+		$sql = 'INSERT INTO '.$this->tableName.' ';
 		
 		foreach ( $this->valuesToInsert as $k => $v ) {
-			$fields .= '`'.$k.'`,';
+			$fields .= $k.',';
 			$values .= self::wrapValue($v).',';
 		}
 
@@ -423,7 +423,7 @@ class SQL {
 		if( !empty($this->orderSql) )
 			$this->orderSql .= ',';
 		
-		$this->orderSql .= '`'.$field.'` '.$order;
+		$this->orderSql .= $field.' '.$order;
 		
 		return $this;
 	}
@@ -466,7 +466,7 @@ class SQL {
 	 */
 	function join( $table, $field_1 = NULL, $operator = NULL, $field_2 = NULL, $mode = '' ) {
 		
-		$this->joinSql .= $mode .' JOIN `'. $table .'` ON ';
+		$this->joinSql .= $mode .' JOIN '. $table .' ON ';
 
         if( isset($field_1) )
 			$this->on( $field_1, $operator, $field_2 );
@@ -539,7 +539,7 @@ class SQL {
             if( $logic != 'AND' ) $this->joinSql .= ')';
         }
         else
-		    $this->joinSql .= '`'. $field_1 .'` '. $operator .' `'. $field_2 .'` ';
+		    $this->joinSql .=  $field_1 .' '. $operator .' '. $field_2 .' ';
 
         $this->joinLogicNeed = true;
 
@@ -548,7 +548,7 @@ class SQL {
 	}
 	
 	/**
-	 * @desc  `或` 逻辑的join连接语句
+	 * @desc  或 逻辑的join连接语句
 	 * @param unknown $field_1
 	 * @param unknown $operator
 	 * @param unknown $field_2
