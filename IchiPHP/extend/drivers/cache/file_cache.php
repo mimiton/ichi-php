@@ -53,7 +53,17 @@ class file_cache implements \IDriver {
         if( !file_exists($path) )
             return NULL;
 
-        return unserialize( file_get_contents( $path ) );
+        $str = file_get_contents( $path );
+
+        $time = substr( $str, 0, 10 );
+
+        // 已过期
+        if( time() >= $time ) {
+            $this->forget($key);
+            return NULL;
+        }
+
+        return unserialize( substr($str,10) );
 
     }
 
@@ -63,13 +73,15 @@ class file_cache implements \IDriver {
      * @param  $value
      * @return bool   true-成功 false-失败
      */
-    function set( $key, $value ) {
+    function set( $key, $value, $expire = 999999999 ) {
 
         $path = $this->path( $key );
 
         $this->createDirectory( $path );
 
-        $bytesWrite = file_put_contents( $path, serialize($value) );
+        $valueWithTimeStamp = $this->addExpireTimeStamp( $value, $expire );
+
+        $bytesWrite = file_put_contents( $path, $valueWithTimeStamp );
 
         return $bytesWrite > 0;
 
@@ -81,14 +93,27 @@ class file_cache implements \IDriver {
      * @param  $value
      * @return bool   true-成功 false-失败
      */
-    function add( $key, $value ) {
+    function add( $key, $value, $expire = NULL ) {
 
         $path = $this->path( $key );
 
         if( file_exists($path) )
             return false;
 
-        return $this->set( $key, $value );
+        return $this->set( $key, $value, $expire );
+
+    }
+
+
+    /**
+     * @desc  清除一个key
+     * @param $key
+     */
+    function forget( $key ) {
+
+        $path = $this->path( $key );
+
+        @unlink($path);
 
     }
 
@@ -117,5 +142,16 @@ class file_cache implements \IDriver {
 
         return true;
 
+    }
+
+    /**
+     * @desc  序列化储存对象，并添加过期时间戳至头部
+     * @param $val
+     * @param $expire
+     * @return string
+     */
+    protected function addExpireTimeStamp( $val, $expire ) {
+        $time = time() + $expire;
+        return $time . serialize($val);
     }
 } 
