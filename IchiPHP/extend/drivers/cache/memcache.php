@@ -44,8 +44,8 @@ class memcache implements \IDriver {
 	 * @param unknown $key
 	 * @param unknown $val
 	 */
-	function set( $key, $val ) {
-		return $this->cache->set( $key, $val );
+	function set( $key, $val, $expire = NULL ) {
+		return $this->cache->set( $key, $val, $expire );
 	}
 
     /**
@@ -54,8 +54,8 @@ class memcache implements \IDriver {
      * @param $val
      * @return mixed
      */
-    function add( $key, $val ) {
-        return $this->cache->add( $key, $val );
+    function add( $key, $val, $expire = NULL ) {
+        return $this->cache->add( $key, $val, $expire );
     }
 
 	/**
