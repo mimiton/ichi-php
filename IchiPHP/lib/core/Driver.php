@@ -46,6 +46,9 @@ class Driver extends Loader {
 
         }
 
+        else
+            throw new IchiStatusException( 500, 'Trying to use a default driver which has\'nt been configured!Alias:'.$alias );
+
     }
 
     /**
