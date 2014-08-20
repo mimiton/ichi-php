@@ -32,7 +32,8 @@ class mysql implements \IDriver {
 		}
 		else
 			throw new \IchiStatusException( 500, 'Failed connecting to database server:`'.$host.'`' );
-	}
+
+    }
 	
 	/**
 	 * @desc  使用sql查询获取数组形式数据
@@ -53,7 +54,7 @@ class mysql implements \IDriver {
 		$numRows = mysql_num_rows($result);
 		
 		// 存在结果
-		if( $result && $numRows>0 ) {
+		if( $numRows > 0 ) {
 			
 			$data = array();
 			
@@ -63,12 +64,48 @@ class mysql implements \IDriver {
 			
 			// 返回数组
 			return $data;
+
 		}
 		else
 			return NULL;
 		
 	}
-	
+
+    /**
+     * @desc   快速插入数据
+     * @param  String $table
+     * @param  Array  $data
+     * @return bool|int
+     */
+    function insert( $table, $data = NULL ) {
+
+        // $data参数不是数组，把$table视作查询语句
+        if( !is_array($data) )
+            $sql = $table;
+
+        // 根据数组拼装查询语句
+        else {
+
+            $fields = '';
+            $values = '';
+
+            foreach( $data as $k => $v ) {
+                $fields .= $k.',';
+                $values .= '"'.$v.'",';
+            }
+            $fields = substr($fields,0,-1);
+            $values = substr($values,0,-1);
+
+            $sql = 'INSERT INTO '.$table.' ('.$fields.') VALUES ('.$values.')';
+
+        }
+
+        if( $this->query($sql) )
+            return mysql_insert_id();
+        else
+            return false;
+
+    }
 	
 	/**
 	 * @desc  使用sql直接查询
@@ -76,7 +113,7 @@ class mysql implements \IDriver {
 	 * @return resource
 	 */
 	function query( $sql ) {
-		return mysql_query( $sql );
+		return @mysql_query( $sql );
 	}
 	
 }
