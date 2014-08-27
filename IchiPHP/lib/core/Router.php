@@ -6,6 +6,10 @@
  */
 class Router {
 
+    // 通配符常量
+    const GENERAL_WILDCARD = '_default';
+    const NUMERIC_WILDCARD = '_numeric';
+
     // 路由的目标应用
     private static $appName;
     // 特殊路由规则数组
@@ -102,16 +106,20 @@ class Router {
      */
     private static function routeToController( $uri ) {
 
+        $GENERAL_WILDCARD = self::GENERAL_WILDCARD;
+        $NUMERIC_WILDCARD = self::NUMERIC_WILDCARD;
+
+        // 访问的是根目录uri（形如`/`,`///`这样）
+        // 路由至根目录特殊控制器
+        if( preg_match( '/^\/+$/', $uri ) )
+            $uri = ICHI_URI_APP_HOMEPAGE;
+
+
         // 控制器目录
         $path = ICHI_CONTROLLERS_PATH . '/' . self::$appName;
 
         // 控制器命名空间
         $nameSpace = ICHI_CONTROLLERS_NS . '\\' . self::$appName;
-
-        // 访问的是根目录uri（形如`/`,`///`这样）
-        // 路由至根目录特殊控制器
-        if( preg_match( '/^\/+$/', $uri ) )
-            $uri = ICHI_URI_APP_HOMEPAGE_CONTROLLER;
 
         // 用 `/` 拆解uri
         $matches = explode( '/', $uri );
@@ -129,7 +137,7 @@ class Router {
             // 寻找对应控制器php文件
             $fileFound = self::findControllerFile( $path, $name );
 
-            if( isset($fileFound) )
+            if( is_string($fileFound) )
                 $name = $fileFound;
 
             // 进入下一层目录
@@ -138,7 +146,7 @@ class Router {
             $nameSpace .= '\\' . $name;
 
             // 有可用控制器php文件
-            if( isset($fileFound) ) {
+            if( is_string($fileFound) ) {
 
                 // 载入文件并创建控制器
                 require_once $path . '.php';
@@ -168,16 +176,16 @@ class Router {
         $fnName = $matches[ $i+1 ];
 
         if( strlen($fnName) < 1 )
-            $fnName = '_default';
+            $fnName = $GENERAL_WILDCARD;
 
         // 调用控制器方法
         if( self::callControllerFn( $controller, $fnName, $args ) )
             return true;
         // 数字类型 通配方法
-        else if( is_numeric($fnName) && self::callControllerFn( $controller, '_numeric', $fnName, $args ) )
+        else if( is_numeric($fnName) && self::callControllerFn( $controller, $NUMERIC_WILDCARD, $fnName, $args ) )
             return true;
         // 默认 通配方法
-        else if( self::callControllerFn( $controller, '_default', $args ) )
+        else if( self::callControllerFn( $controller, $GENERAL_WILDCARD, $args ) )
             return true;
         // 未找到可用方法
         else
@@ -195,17 +203,24 @@ class Router {
      */
     private static function findControllerFile( $path, $name ) {
 
+        $GENERAL_WILDCARD = self::GENERAL_WILDCARD;
+        $NUMERIC_WILDCARD = self::NUMERIC_WILDCARD;
+
         // 判断对应文件是否存在
         if( file_exists( $path . '/' . $name . '.php' ) )
             $fileFound = $name;
 
-        // _numeric.php，处理当前URI层为数字的情况
-        else if( is_numeric($name) && file_exists( $path . '/_numeric.php' ) )
-            $fileFound = '_numeric';
+        // 有同名目录存在，跳过通配控制器
+        else if( is_dir( $path . '/' . $name ) )
+            $fileFound = false;
 
-        // _default.php，处理当前URI层为任意字符的情况
-        else if( file_exists( $path . '/_default.php' ) )
-            $fileFound = '_default';
+        // 处理当前URI层为数字的情况
+        else if( is_numeric($name) && file_exists( $path . '/'. $NUMERIC_WILDCARD .'.php' ) )
+            $fileFound = $NUMERIC_WILDCARD;
+
+        // 处理当前URI层为任意字符的其他情况
+        else if( file_exists( $path . '/'. $GENERAL_WILDCARD .'.php' ) )
+            $fileFound = $GENERAL_WILDCARD;
 
         return $fileFound;
     }
@@ -226,18 +241,18 @@ class Router {
 
         // 调用->functionName_{GET|POST|PUT|DELETE}();这样的方法
         if( method_exists( $controller, $fnNameWithMethod ) )
-            $controller->$fnNameWithMethod( $args_1, $args_2 );
+            $result = $controller->$fnNameWithMethod( $args_1, $args_2 );
 
         // 不存在则调用不带后缀的普通方法->functionName()
         else if( method_exists( $controller, $fnName ) )
-            $controller->$fnName( $args_1, $args_2 );
+            $result = $controller->$fnName( $args_1, $args_2 );
 
         // 没找到可用方法
         else
             return false;
 
 
-        return true;
+        return $result === false? false : true;
 
     }
 
@@ -265,7 +280,7 @@ class Router {
 
 
         // 路由至指定错误码对应的控制器
-        if( !self::routeToController( '/_default/_' . $status ) )
+        if( !self::routeToController( ICHI_URI_EXCEPTION .'/'. $status ) )
             // 应用目录没有提供用于错误页面的控制器
             // 所以显示框架默认的错误页面
             self::showFrameworkErrPage($status);
