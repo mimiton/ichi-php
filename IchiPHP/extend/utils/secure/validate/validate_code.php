@@ -15,7 +15,9 @@ class validate_code {
     private $code; //验证码
     private $img; //图形资源句柄
     private $font; //指定的字体
+    private $fontSize;
     private $fontcolor; //指定字体颜色
+    private  $codelen,$width,$height;
 
     /**
      * @desc  构造方法
