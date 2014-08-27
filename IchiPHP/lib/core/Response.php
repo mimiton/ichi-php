@@ -43,11 +43,28 @@ class Response {
     }
 
 	/**
-	 * @desc  直接输出字符
+	 * @desc  输出数据
 	 * @param unknown $data
 	 */
 	static function write( $data ) {
-		echo $data;
+
+        if( is_string($data) )
+		    echo $data;
+
+        else {
+
+            $mode = Request::getParam('mode');
+            if( $mode == 'xml' )
+                self::writeXML($data);
+            else if( $mode == 'print' )
+                print_r($data);
+            else if( $mode == 'dump' )
+                var_dump($data);
+            else
+                self::writeJSON($data);
+
+        }
+
 	}
 
     /**
