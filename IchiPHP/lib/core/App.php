@@ -25,7 +25,7 @@ class App {
         Router::setAppName( $appName );
         Router::setSpecialRoute( $specialRoute );
 
-        Router::to( ICHI_URI_APP_INIT_CONTROLLER, false );
+        Router::to( ICHI_URI_APP_INIT, false );
         // 开始路由
 		self::route();
 		
