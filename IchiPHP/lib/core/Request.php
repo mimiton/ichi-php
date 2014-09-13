@@ -7,6 +7,7 @@ class Request {
 
     private static $method;
     private static $params;
+    private static $secureParams;
 
 	/**
 	 * @desc   获取来源请求的method方法类型
@@ -27,25 +28,12 @@ class Request {
 	 */
 	static function getParam( $key, $secure = true, $charset = 'UTF-8' ) {
 
-        // 请求method
-        $method = self::getMethod();
+        $params = self::getRawParams();
 
-        // 根据method类型获取对应请求参数
-        if( $method == 'GET' )
-            $param = $_GET[ $key ];
-        else if( $method == 'POST' )
-            $param = $_POST[ $key ];
+        $param = $params[$key];
 
-        // 其他情况的参数获取
-        else {
-
-            if( !isset(self::$params) )
-                parse_str( file_get_contents('php://input'), self::$params );
-
-            $param = self::$params[ $key ];
-
-        }
-
+        if( !isset($param) )
+            return NULL;
 
         // 安全模式，过滤html字符
         if( $secure )
@@ -54,6 +42,60 @@ class Request {
 		return $param;
 
 	}
+
+    /**
+     * @desc  获取全部的请求参数
+     * @param bool $secure
+     * @param string $charset
+     * @return mixed
+     */
+    static function getParams( $secure = true, $charset = 'UTF-8' ) {
+
+        if( $secure )
+            if( isset(self::$secureParams) )
+                return self::$secureParams;
+
+
+        $params = self::getRawParams();
+
+        if( $secure ) {
+
+            foreach( $params as $k => $v )
+                $params[$k] = htmlentities( $v, ENT_NOQUOTES, $charset );
+
+            self::$secureParams = $params;
+
+        }
+
+        return $params;
+
+    }
+
+    /**
+     * @desc   获取原始的请求参数
+     * @return mixed
+     */
+    private static function getRawParams() {
+
+        if( isset(self::$params) )
+            return self::$params;
+
+        // 请求method
+        $method = self::getMethod();
+
+        // 根据method类型获取对应请求参数
+        if( $method == 'GET' )
+            self::$params = $_GET;
+        else if( $method == 'POST' )
+            self::$params = $_POST;
+
+        // 其他情况的参数获取
+        else
+            parse_str( file_get_contents('php://input'), self::$params );
+
+        return self::$params;
+
+    }
 	
 	/**
 	 * @desc   获取浏览器信息
