@@ -41,7 +41,7 @@ class mysql implements \IDriver {
 	 * @return multitype:NULL |NULL
 	 */
 	function getData( $sql ) {
-		
+
 		// 获取查询结果集
 		$result = $this->query($sql);
 
@@ -52,7 +52,7 @@ class mysql implements \IDriver {
 
 		// 行数
 		$numRows = mysql_num_rows($result);
-		
+
 		// 存在结果
 		if( $numRows > 0 ) {
 			

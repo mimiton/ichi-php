@@ -205,7 +205,7 @@ class SQL {
 	 */
 	private function getUpdate() {
 		
-		$sql = 'UPDATE '.$this->tabName.' SET ';
+		$sql = 'UPDATE '.$this->tableName.' SET ';
 		
 		$valsArr = array();
 		foreach ( $this->valuesToUpdate as $k => $v ) {
