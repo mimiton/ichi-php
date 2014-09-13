@@ -8,7 +8,16 @@
 
 namespace extend\utils\language\chinese;
 
-
+/**
+ * @desc    拼音生成工具
+ *          用法：
+ *              $py = pinyin::make( '爱吃订餐', 2 );
+ *              $py->getCamelize();      // `AiChi`
+ *              $py->getDashize();       // `ai-chi`
+ *              $py->getFirstLetter();   // `AC`
+ *
+ * @package extend\utils\language\chinese
+ */
 class pinyin {
 
     const MODE_NORMAL  = 0;
@@ -478,8 +487,8 @@ class pinyin {
      * @param $str
      * @return pinyin
      */
-    static function make( $str, $charset = NULL ) {
-        return new pinyin( $str, $charset );
+    static function make( $str, $wordNum = 0, $charset = NULL ) {
+        return new pinyin( $str, $wordNum, $charset );
     }
 
     /**
