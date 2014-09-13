@@ -139,6 +139,11 @@ class Router {
 
             if( is_string($fileFound) )
                 $name = $fileFound;
+            else {
+                $dirFound = self::findControllerDir( $path, $name );
+                if( is_string($dirFound) )
+                    $name = $dirFound;
+            }
 
             // 进入下一层目录
             $path      .= '/'  . $name;
@@ -168,13 +173,13 @@ class Router {
 
         // URI遍历结束
 
-        // 从停留在的URI层开始之后的每一个URI层名字
-        // 作调用控制器的参数使用
-        $args = array_slice( $matches, $i );
+        // 每一个URI层名字作调用控制器的参数使用
+        $args = array_slice( $matches, 1 );
 
         // 向后一层URI的名字，作调用的目标方法名
         $fnName = $matches[ $i+1 ];
 
+        // 后一层URI不存在，调用默认方法
         if( strlen($fnName) < 1 )
             $fnName = $GENERAL_WILDCARD;
 
@@ -195,6 +200,34 @@ class Router {
 
 
     /**
+     * @desc  寻找指定目录下的指定名称所对应的控制器目录
+     *        向下兼容_numeric、_default模式
+     * @param $path
+     * @param $name
+     * @return string
+     */
+    private static function findControllerDir( $path, $name ) {
+
+        $GENERAL_WILDCARD = self::GENERAL_WILDCARD;
+        $NUMERIC_WILDCARD = self::NUMERIC_WILDCARD;
+
+        // 同名目录存在
+        if( is_dir( $path . '/' . $name ) )
+            $dirFound = $name;
+
+        // 处理当前URI层为数字的情况
+        else if( is_numeric($name) && is_dir( $path . '/'. $NUMERIC_WILDCARD ) )
+            $dirFound = $NUMERIC_WILDCARD;
+
+        // 处理当前URI层为任意字符的其他情况
+        else if( is_dir( $path . '/'. $GENERAL_WILDCARD ) )
+            $dirFound = $GENERAL_WILDCARD;
+
+        return $dirFound;
+
+    }
+
+    /**
      * @desc  寻找指定目录下的指定名称所对应的控制器php文件
      *        向下兼容_numeric、_default模式
      * @param unknown $path
@@ -211,8 +244,8 @@ class Router {
             $fileFound = $name;
 
         // 有同名目录存在，跳过通配控制器
-        else if( is_dir( $path . '/' . $name ) )
-            $fileFound = false;
+        //else if( is_dir( $path . '/' . $name ) )
+        //    $fileFound = false;
 
         // 处理当前URI层为数字的情况
         else if( is_numeric($name) && file_exists( $path . '/'. $NUMERIC_WILDCARD .'.php' ) )
