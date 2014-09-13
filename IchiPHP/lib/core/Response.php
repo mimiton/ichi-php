@@ -6,6 +6,7 @@
  */
 class Response {
 
+    private static $outputModeKey  = '_data_mode';
     // 默认视图引擎名称
 	private static $viewEngineName = 'IchiViewEngine';
 
@@ -53,7 +54,7 @@ class Response {
 
         else {
 
-            $mode = Request::getParam('mode');
+            $mode = Request::getParam( self::$outputModeKey );
             if( $mode == 'xml' )
                 self::writeXML($data);
             else if( $mode == 'print' )
@@ -75,11 +76,11 @@ class Response {
     static function writeXML( $data ) {
 
         if( !is_array($data) )
-            return false;
-
-        self::write( Util::array2XML( $data ) );
+            $data = Array();
 
         self::setHeader( 'Content-Type', 'application/xml' );
+
+        self::write( Util::array2XML( $data ) );
 
     }
 
@@ -91,11 +92,11 @@ class Response {
     static function writeJSON( $data ) {
 
         if( !is_array($data) )
-            return false;
-
-        self::write( Util::array2JSON($data) );
+            $data = NULL;
 
         self::setHeader( 'Content-Type', 'application/json');
+
+        self::write( Util::array2JSON($data) );
 
     }
 	
@@ -131,7 +132,7 @@ class Response {
 		
 		// 初始化视图引擎实例
 		self::initViewEngine();
-		
+
 		// 调用引擎实例的render方法
 		self::$viewEngine->render( self::$viewPath . '/' . $tplRelativePath );
 		
