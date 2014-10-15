@@ -297,26 +297,23 @@ class Router {
         // 清除已经输出的内容
         ob_clean();
 
-        // 获取错误码
+        // 无可用错误码时作500处理
+        if( !is_numeric($e->status) )
+            $e->status = 500;
+
         $status = $e->status;
 
-        // 无可用错误码时作404处理
-        if( !is_numeric($status) )
-            $status = 404;
-
-        // 输出响应头状态码
-        header( 'HTTP/1.1 ' . $status );
-
-        // 输出错误信息到header
-        if( !empty($e->msg) )
-            header( 'Ichi-Msg:' . $e->msg );
-
-
         // 路由至指定错误码对应的控制器
-        if( !self::routeToController( ICHI_URI_EXCEPTION .'/'. $status ) )
+        if( !self::routeToController( ICHI_URI_EXCEPTION .'/'. $status ) ) {
+
+            // 响应错误信息
+            Response::writeException( $e );
+
             // 应用目录没有提供用于错误页面的控制器
             // 所以显示框架默认的错误页面
             self::showFrameworkErrPage($status);
+
+        }
 
         exit();
 
@@ -328,12 +325,8 @@ class Router {
      */
     private static function showFrameworkErrPage( $status ) {
 
-        if( Request::getMethod() == 'GET' ) {
-
-            Response::setViewPath( ICHI_PHP_PATH.'/lib/assets/html/' );
-            Response::render( '_'.$status.'.html' );
-
-        }
+        if( Request::getMethod() == 'GET' )
+            Response::render( '_'.$status.'.html', ICHI_PHP_PATH.'/lib/assets/html/' );
 
     }
 
@@ -349,8 +342,11 @@ class IchiStatusException extends Exception {
     var $status,$msg;
 
     function __construct( $status, $msg ) {
+
         $this->status = $status;
+
         $this->msg    = $msg;
+
     }
 
 }

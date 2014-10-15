@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+</head>
+<body>
+    <table border="1">
+        <thead>
+            <tr>
+                <?php foreach( $data[0] as $key => $val ) { ?>
+                    <td><?php echo $key; ?></td>
+                <?php } ?>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach( $data as $item ) { ?>
+                <tr>
+                    <?php foreach( $item as $key => $val ) { ?>
+                        <td><?php echo $val; ?></td>
+                    <?php } ?>
+                </tr>
+            <?php } ?>
+        </tbody>
+    </table>
+</body>
+</html>
