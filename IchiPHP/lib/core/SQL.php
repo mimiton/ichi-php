@@ -116,13 +116,13 @@ class SQL {
 	 * @return unknown|string
 	 */
 	static function wrapValue( $strOrArr ) {
-		
+
+        // 字符串
+        if( is_string($strOrArr) )
+            return '"' .$strOrArr. '"';
 		// 数字
-		if( is_numeric($strOrArr) )
+        else if( is_numeric($strOrArr) )
 			return $strOrArr;
-		// 字符串
-		else if( is_string($strOrArr) )
-			return '"' .$strOrArr. '"';
 		// 数组
 		else if( is_array($strOrArr) ) {
 			
