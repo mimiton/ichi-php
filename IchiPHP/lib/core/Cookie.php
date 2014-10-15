@@ -60,9 +60,9 @@ class Cookie {
 	/**
 	 * @desc  获取cookie
 	 * @param string $key      键名
-	 * @param string $safeMode 安全模式（可选，默认true）
+	 * @param string $safeMode 安全模式（可选，false）
 	 */
-	static function get( $key, $safeMode = true ) {
+	static function get( $key, $safeMode = false ) {
 		
 		if( $safeMode && !self::isSafe( $key ) )
 			return false;
@@ -90,7 +90,7 @@ class Cookie {
 		
 		// 密匙cookie名称
 		$tokenKey = $key . self::TOKEN_SUFFIX;
-		
+
 		
 		// 设置
 		setcookie( $key, $val, $expire, $path, $domain, $secure, $secure );
