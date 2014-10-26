@@ -2,11 +2,59 @@
 /**
  * Created by PhpStorm.
  * User: xiaozheen
- * Date: 14-8-19
- * Time: 下午3:51
+ * Date: 14/10/19
+ * Time: 下午11:23
  */
 
-class Util {
+namespace extend\utils\data;
+
+
+class transformer {
+
+    /**
+     * @desc  格式化电话号码成xxx-xxxx-xxxx、xxx-xxxx的格式
+     * @param $phone
+     * @return string
+     */
+    static function formatPhone( $phone ) {
+
+        $units = array();
+
+        $len = strlen($phone);
+
+        $unitSize = $len % 4;
+
+        for( $i = 0; $len > $i; $i += $unitSize,$unitSize = 4 ) {
+            $units[] = substr( $phone, $i, $unitSize );
+
+        }
+        return implode( $units, '-' );
+
+    }
+
+    /**
+     * @desc  重组数组数据
+     *        以指定字段关联，重组成3维及以上的数组数据
+     * @param $targetArray
+     * @param $srcArray
+     */
+    static function arrayRecomb( $targetArray, $srcArray, $targetField, $srcField, $fieldToPut ) {
+
+        // Todo: 重组数组数据
+
+        foreach( $targetArray as $targetKey => $targetItem ) {
+
+            foreach( $srcArray as $srcItem ) {
+
+                if( $targetItem[ $targetField ] == $srcItem[ $srcField ] )
+                    $targetArray[$targetKey][ $fieldToPut ][] = $srcItem;
+
+            }
+        }
+
+        return $targetArray;
+
+    }
 
     static function unescape( $str ) {
 
@@ -74,4 +122,4 @@ class Util {
 
     }
 
-}
+} 

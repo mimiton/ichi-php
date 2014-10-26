@@ -7,7 +7,7 @@ namespace extend\drivers\viewengine;
  * @author xiaozheen
  *
  */
-class IchiViewEngine implements \IViewEngine {
+class ichi implements \IViewEngine {
 	
 	// 视图变量
 	private $vars = array();
