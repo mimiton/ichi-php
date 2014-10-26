@@ -1,13 +1,14 @@
 <?php
 
 namespace extend\drivers\database;
+use \IDriver;
 
 /**
  * @desc   mysql数据库驱动
  * @author xiaozheen
  *
  */
-class mysql implements \IDriver {
+class mysql implements IDriver {
 	
 	/**
 	 * (non-PHPdoc)

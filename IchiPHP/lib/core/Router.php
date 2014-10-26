@@ -306,14 +306,15 @@ class Router {
         // 路由至指定错误码对应的控制器
         if( !self::routeToController( ICHI_URI_EXCEPTION .'/'. $status ) ) {
 
-            // 响应错误信息
-            Response::writeException( $e );
-
             // 应用目录没有提供用于错误页面的控制器
             // 所以显示框架默认的错误页面
             self::showFrameworkErrPage($status);
 
         }
+
+        // 响应错误信息
+        Response::writeException( $e );
+
 
         exit();
 
