@@ -63,9 +63,13 @@ class Response {
         600 => 'Unparseable Response Headers'
     );
 
+    // 输出模式配置在URL的query参数的键名
+    // `?_data_mode=xml`
+    // `?_data_mode=print`
+    // `?_data_mode=dump`
     private static $outputModeKey  = '_data_mode';
     // 默认视图引擎名称
-    private static $viewEngineName = 'IchiViewEngine';
+    private static $viewEngineName = 'ichi';
 
     // 视图文件目录
     // 默认视图文件路径为：app目录下views目录
@@ -137,7 +141,10 @@ class Response {
 
         self::setHeader( 'Content-Type', 'application/xml' );
 
-        self::write( Util::array2XML( $data ) );
+        // 载入数据转换扩展模块
+        Extend::load( '/utils/data/transformer' );
+
+        self::write( \extend\utils\data\transformer::array2XML( $data ) );
 
     }
 
@@ -153,7 +160,10 @@ class Response {
 
         self::setHeader( 'Content-Type', 'application/json');
 
-        self::write( Util::array2JSON($data) );
+        // 载入数据转换扩展模块
+        Extend::load( '/utils/data/transformer' );
+
+        self::write( \extend\utils\data\transformer::array2JSON($data) );
 
     }
 
@@ -163,29 +173,10 @@ class Response {
      */
     static function writeGrid( $data ) {
 
-        /*$tbody = '';
-
-        foreach( $data as $item ) {
-
-            if( !isset($thead) ) {
-                $thead = '';
-                foreach( $item as $key => $val )
-                    $thead .= '<td>'.$key.'</td>';
-            }
-
-            $tbody .= '<tr>';
-
-            foreach( $item as $val )
-                $tbody .= '<td>'.$val.'</td>';
-
-            $tbody .= '</tr>';
-
-        }
-
-        echo '<table border="1">'.$thead.$tbody.'</table>';*/
-
+        // assign数据到缓冲
         self::assign( 'data', $data );
 
+        // 渲染`框架目录/lib/assets/templates`目录下的表格模板
         self::render( 'tpl_data_grid.html', ICHI_PHP_PATH . '/lib/assets/templates/' );
 
     }
@@ -219,7 +210,7 @@ class Response {
      * @param unknown $tplPath
      */
     static function render( $tplRelativePath, $viewPath = NULL ) {
-        
+
         // 初始化视图引擎实例
         self::initViewEngine();
 
