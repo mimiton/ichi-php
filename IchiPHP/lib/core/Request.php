@@ -96,6 +96,72 @@ class Request {
         return self::$params;
 
     }
+
+    /**
+     * @desc   用过滤器数组过滤获取请求参数
+     * @param  $fields
+     *          过滤器形如
+     *              array(
+                        'user_name',
+     *                  'order_phone'   => 'phone',
+     *                  'user_email'    => 'email',
+     *                  'price'         => 'number'
+     *              );
+     * @param  bool $secure
+     * @param  string $charset
+     * @return array|null
+     */
+    static function getParamsByFilter( $fields, $secure = true, $charset = 'UTF-8' ) {
+
+        // 过滤正则
+        $typeRegex = array(
+            'word'      => '/^\w+$/',
+            'number'    => '/^\d+\.?\d*$/',
+            'phone'     => '/^[\d\-]{4,18}$/',
+            'email'     => '/^[A-z0-9_-]+@[A-z0-9_-]+\.[A-z0-9_-]+$/'
+        );
+
+        if( is_array($fields) )
+            foreach( $fields as $key => $type ) {
+
+                // 下标为数字，作一维数组处理（未指定数据的过滤类型）
+                if( is_numeric($key) ) {
+                    $key  = $type;
+                    $type = NULL;
+                }
+
+                // 有预设正则
+                if( $typeRegex[$type] )
+                    $regex = $typeRegex[$type];
+                // 无预设正则，使用$type本身做匹配正则
+                else if( $type )
+                    $regex = $type;
+
+                // 获取请求参数
+                $val = Request::getParam( $key, $secure, $charset );
+
+                if( isset($val) ) {
+
+                    // 跳过类型不匹配的参数
+                    if( $regex && !@preg_match( $regex, $val ) )
+                        continue;
+
+                    if( !isset($params) )
+                        $params = array();
+
+                    $params[$key] = $val;
+
+                }
+
+            }
+
+        else
+            $params = NULL;
+
+        return $params;
+
+    }
+
 	
 	/**
 	 * @desc   获取浏览器信息
