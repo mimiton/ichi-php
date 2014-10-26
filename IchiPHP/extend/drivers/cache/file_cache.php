@@ -58,9 +58,12 @@ class file_cache implements \IDriver {
         $time = substr( $str, 0, 10 );
 
         // 已过期
-        if( time() >= $time ) {
-            $this->forget($key);
+        if( $time <= time() ) {
+
+            $this->delete($key);
+
             return NULL;
+
         }
 
         return unserialize( substr($str,10) );
@@ -95,9 +98,7 @@ class file_cache implements \IDriver {
      */
     function add( $key, $value, $expire = NULL ) {
 
-        $path = $this->path( $key );
-
-        if( file_exists($path) )
+        if( $this->get($key) !== NULL )
             return false;
 
         return $this->set( $key, $value, $expire );
@@ -106,20 +107,43 @@ class file_cache implements \IDriver {
 
 
     /**
-     * @desc  清除一个key
+     * @desc  删除一个缓存值
      * @param $key
      */
-    function forget( $key ) {
+    function delete( $key, $timeout = NULL ) {
 
-        $path = $this->path( $key );
+        // 有设置timeout时间，重置对应值的expire过期时间
+        if( is_numeric($timeout) && $timeout>0 )
+            $this->updateExpire( $key, $timeout );
 
-        @unlink($path);
+        // 删除对应缓存文件
+        else {
+
+            $path = $this->path( $key );
+
+            @unlink($path);
+
+        }
 
     }
 
     /**
-     * @desc  根据key值转换哈希路径
-     * @param $key
+     * @desc  （如果值存在）更新过期时间戳
+     * @param  $key
+     * @param  $expire
+     */
+    private function updateExpire( $key, $expire ) {
+
+        $value = $this->get($key);
+
+        if( $value !== NULL )
+            $this->set( $key, $value, $expire );
+
+    }
+
+    /**
+     * @desc   根据key值转换哈希路径
+     * @param  $key
      * @return string
      */
     protected function path( $key ) {
@@ -131,8 +155,8 @@ class file_cache implements \IDriver {
     }
 
     /**
-     * @desc  创建目录
-     * @param $path
+     * @desc   创建目录
+     * @param  $path
      * @return bool
      */
     protected function createDirectory( $path ) {
@@ -151,7 +175,11 @@ class file_cache implements \IDriver {
      * @return string
      */
     protected function addExpireTimeStamp( $val, $expire ) {
+
         $time = time() + $expire;
+
         return $time . serialize($val);
+
     }
+
 } 

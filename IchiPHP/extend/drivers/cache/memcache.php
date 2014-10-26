@@ -9,7 +9,8 @@ namespace extend\drivers\cache;
  */
 class memcache implements \IDriver {
 	
-	var $cache;
+	var $cache,
+        $isFileCache = false;
 	
 	/**
 	 * (non-PHPdoc)
@@ -21,8 +22,14 @@ class memcache implements \IDriver {
             $this->cache = new \Memcache();
 
         // Memcache扩展不可用时降级使用文件cache
-        else
+        else {
+
             $this->cache = \Driver::load( '/cache/file_cache', true );
+
+            // 标记使用文件缓存
+            $this->isFileCache = true;
+
+        }
 
 		$host   = $cfg['host'];
 		$port   = $cfg['port'];
@@ -41,30 +48,54 @@ class memcache implements \IDriver {
 	
 	/**
 	 * @desc  设置缓存值
-	 * @param unknown $key
-	 * @param unknown $val
-	 */
-	function set( $key, $val, $expire = NULL ) {
-		return $this->cache->set( $key, $val, $expire );
+	 * @param String        $key
+	 * @param String|Number $val
+     * @param Number        $expire
+     * @param Number        $compressMode
+     */
+	function set( $key, $val, $expire = NULL, $compressMode = 0 ) {
+
+        // 当前使用文件缓存，没有compressMode参数，把expire传至第三个参数
+        if( $this->isFileCache )
+            $compressMode = $expire;
+
+		return $this->cache->set( $key, $val, $compressMode, $expire );
 	}
 
     /**
      * @desc  添加缓存值（不覆盖）
-     * @param $key
-     * @param $val
-     * @return mixed
+     * @param String        $key
+     * @param String|Number $val
+     * @param Number        $expire
+     * @param Number        $compressMode
      */
-    function add( $key, $val, $expire = NULL ) {
-        return $this->cache->add( $key, $val, $expire );
+    function add( $key, $val, $expire = NULL, $compressMode = 0 ) {
+
+        // 当前使用文件缓存，没有compressMode参数，把expire传至第三个参数
+        if( $this->isFileCache )
+            $compressMode = $expire;
+
+        return $this->cache->add( $key, $val, $compressMode, $expire );
     }
 
 	/**
 	 * @desc  获取缓存值
-	 * @param unknown $key
+	 * @param String $key
 	 */
 	function get( $key ) {
 		return $this->cache->get( $key );
 	}
+
+    /**
+     * @desc  删除一个缓存值
+     * @param $key
+     * @param int $timeout
+     */
+    function delete( $key, $timeout = 0 ) {
+
+        $this->cache->delete( $key, $timeout );
+
+    }
 	
 }
 
