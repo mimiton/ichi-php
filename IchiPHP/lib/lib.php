@@ -70,5 +70,4 @@ require 'core/Response.php';
 require 'core/Router.php';
 require 'core/Session.php';
 require 'core/SQL.php';
-require 'core/Util.php';
 ?>
