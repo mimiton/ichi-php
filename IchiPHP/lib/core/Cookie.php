@@ -73,29 +73,51 @@ class Cookie {
 	
 	/**
 	 * @desc  设置cookie
-	 * @param string $key    键名
-	 * @param string $val    设置值
-	 * @param string $expire 过期时间
-	 * @param string $path   路径
-	 * @param string $domain 域名
-	 * @param string $secure 使用https
+	 * @param string $key       键名
+	 * @param string $val       设置值
+	 * @param string $expire    过期时间
+	 * @param string $path      路径
+	 * @param string $domain    域名
+	 * @param string $useHttps  使用https
 	 */
-	static function set( $key, $val, $expire = NULL, $path = NULL, $domain = NULL, $secure = NULL ) {
-		
-		// UA信息
-		$UA    = $_SERVER['HTTP_USER_AGENT'];
-		
-		// 使用 值+UA信息+密匙 加密作为密匙
-		$token = md5( $val . $UA . ICHI_SALT );
-		
-		// 密匙cookie名称
-		$tokenKey = $key . self::TOKEN_SUFFIX;
+	static function set( $key, $val, $expire = NULL, $path = NULL, $domain = NULL, $useHttps = NULL ) {
 
-		
 		// 设置
-		setcookie( $key, $val, $expire, $path, $domain, $secure, $secure );
-		setcookie( $tokenKey, $token, $expire, $path, $domain, $secure, $secure );
+		return setcookie( $key, $val, $expire, $path, $domain, $useHttps );
+
 	}
+
+    /**
+     * @desc  附带加密校验token的cookie设置
+     * @param string $key       键名
+     * @param string $val       设置值
+     * @param string $expire    过期时间
+     * @param string $path      路径
+     * @param string $domain    域名
+     * @param string $useHttps  使用https
+     */
+    static function setSecurely( $key, $val, $expire = NULL, $path = NULL, $domain = NULL, $useHttps = NULL ) {
+
+        // 调用set方法进行基本cookie设置
+        $baseSetted = self::set( $key, $val, $expire, $path, $domain, $useHttps );
+
+        // cookie加密token的生成、设置
+        // 密匙cookie名称
+        $tokenKey = $key . self::TOKEN_SUFFIX;
+
+        // UA信息
+        $UA    = $_SERVER['HTTP_USER_AGENT'];
+
+        // 使用 值+UA信息+密匙 加密作为密匙
+        $token = md5( $val . $UA . ICHI_SALT );
+
+        if( $baseSetted )
+            $tokenSetted = setcookie( $tokenKey, $token, $expire, $path, $domain, $useHttps );
+
+        // 返回设置成功与否 的布尔值
+        return $baseSetted && $tokenSetted;
+
+    }
 	
 	/**
 	 * @desc  检查指定cookie是否安全
