@@ -116,12 +116,15 @@ class Response {
         else {
 
             $mode = Request::getParam( self::$outputModeKey );
+
             if( $mode == 'xml' )
                 self::writeXML($data);
             else if( $mode == 'print' )
                 print_r($data);
             else if( $mode == 'dump' )
                 var_dump($data);
+            else if( $mode == 'grid' )
+                self::writeGrid($data);
             else
                 self::writeJSON($data);
 
@@ -193,10 +196,11 @@ class Response {
         self::initViewEngine();
         
         // 设置视图变量键值对
-        // $key可为字符串或数组
+        // $key为非数组，正常处理
         if( !is_array( $key ) )
             $keyValues = array( $key => $value );
 
+        // $key为数组，说明携带多个键值对
         else
             $keyValues = $key;
 
@@ -224,7 +228,7 @@ class Response {
     }
 
     /**
-     * @desc  输出异常相关响应头
+     * @desc  根据异常输出相关响应头
      * @param $e
      */
     static function writeException( $e ) {
