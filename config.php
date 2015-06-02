@@ -9,14 +9,14 @@ Driver::config(
 	array(
 		'defaultDrivers' => array(
 			'mysql' => array(
-				'path'     => '/database/mysql', // 驱动文件路径，省略`.php`的扩展名
+				'path'     => '/database/mysqli', // 驱动文件路径，省略`.php`的扩展名
 				'host'     => 'localhost',
 				'user'     => 'root',
 				'password' => '123456',
 				'database' => 'db_ichiso_main',
                 'charset'  => 'utf8'
 			),
-			'memcache' => array(
+			'mem' => array(
 				'path'     => '/cache/memcache',
 				'host'     => 'localhost',
 				'port'     => '11211'

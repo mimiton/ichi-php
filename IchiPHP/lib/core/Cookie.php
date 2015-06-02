@@ -16,7 +16,7 @@ class Cookie {
 	 * @param number $hourNum
 	 */
 	static function hour( $key, $val, $hourNum = 1 ) {
-		self::set( $key, $val, time() + $hourNum*60*60 );
+		self::set( $key, $val, $hourNum*60*60 );
 	}
 	
 	/**
@@ -26,7 +26,7 @@ class Cookie {
 	 * @param number $dayNum
 	 */
 	static function day( $key, $val, $dayNum = 1 ) {
-		self::set( $key, $val, time() + $dayNum*24*60*60 );
+		self::set( $key, $val, $dayNum*24*60*60 );
 	}
 	
 	/**
@@ -36,7 +36,7 @@ class Cookie {
 	 * @param number $weekNum
 	 */
 	static function week( $key, $val, $weekNum = 1 ) {
-		self::set( $key, $val, time() + $weekNum*7*24*60*60 );
+		self::set( $key, $val, $weekNum*7*24*60*60 );
 	}
 	/**
 	 * @desc  月数cookie
@@ -45,7 +45,7 @@ class Cookie {
 	 * @param number $monthNum
 	 */
 	static function month( $key, $val, $monthNum = 1 ) {
-		self::set( $key, $val, time() + $monthNum*30*24*60*60 );
+		self::set( $key, $val, $monthNum*30*24*60*60 );
 	}
 	
 	/**
@@ -54,7 +54,7 @@ class Cookie {
 	 * @param unknown $val
 	 */
 	static function forever( $key, $val ) {
-		self::set( $key, $val, time() + 36500*24*60*60 );
+		self::set( $key, $val, 36500*24*60*60 );
 	}
 	
 	/**
@@ -83,7 +83,7 @@ class Cookie {
 	static function set( $key, $val, $expire = NULL, $path = NULL, $domain = NULL, $useHttps = NULL ) {
 
 		// 设置
-		return setcookie( $key, $val, $expire, $path, $domain, $useHttps );
+		return setcookie( $key, $val, time() + $expire, $path, $domain, $useHttps );
 
 	}
 
@@ -112,7 +112,7 @@ class Cookie {
         $token = md5( $val . $UA . ICHI_SALT );
 
         if( $baseSetted )
-            $tokenSetted = setcookie( $tokenKey, $token, $expire, $path, $domain, $useHttps );
+            $tokenSetted = self::set( $tokenKey, $token, $expire, $path, $domain, $useHttps );
 
         // 返回设置成功与否 的布尔值
         return $baseSetted && $tokenSetted;
